@@ -1,0 +1,15 @@
+{
+  "name": "tg-bot",
+  "version": "1.0",
+  "description": "Tg bot by lavr",
+  "main": "index.js",
+  "author": "Lavrinoich Egor",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^2.2.1",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "mongoose": "^9.0.2",
+    "node-telegram-bot-api": "^0.67.0"
+  }
+}
