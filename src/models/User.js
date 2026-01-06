@@ -1,9 +1,15 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
+const { Schema, model, models } = mongoose;
 
-const UserSchema = new mongoose.Schema({
-  telegramId: { type: String, required: true, unique: true },
-  username: String,
-  createdAt: { type: Date, default: Date.now },
+const UserSchema = new Schema({
+  telegramId: { type: Number, unique: true },
+  role: { type: String, enum: ["client", "specialist"], default: null },
+  state: {
+    type: String,
+    enum: ["START", "ROLE_SELECT", "CATEGORY_SELECT", "WAIT_MESSAGE"],
+    default: "START",
+  },
+  selectedCategory: String,
 });
 
-module.exports = mongoose.model('User', UserSchema);
+export default models.User || model("User", UserSchema);

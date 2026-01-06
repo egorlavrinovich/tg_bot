@@ -2,6 +2,7 @@
   "name": "tg-bot",
   "version": "1.0",
   "description": "Tg bot by lavr",
+  "type": "module",
   "main": "index.js",
   "author": "Lavrinoich Egor",
   "license": "MIT",
