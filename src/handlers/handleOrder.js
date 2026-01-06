@@ -31,12 +31,16 @@ export async function handleOrder(bot, reaction) {
   console.log(request);
   await bot.sendMessage(
     request?.telegramId,
-    `Ваша заявка принята специалистом @${reaction?.from?.username}\n. Пожалуйста, свяжитесь с ним`,
+    `✅ На вашу заявку откликнулся специалист:
+
+👤 @${reaction?.from?.username}
+
+Свяжитесь с ним напрямую или выполните действие ниже.`,
     {
       reply_markup: {
         inline_keyboard: [
-          [{ text: "Закрыть заявку", callback_data: `close_order` }],
-          [{ text: "Оценить специалиста", callback_data: `take_order` }],
+          [{ text: "✅ Подтвердить выбор", callback_data: `perform_order` }],
+          [{ text: "⭐ Оценить специалиста", callback_data: `review` }],
         ],
       },
     }

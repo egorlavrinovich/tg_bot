@@ -10,11 +10,10 @@ import { handleCategory } from "../handlers/category.js";
 import { handleClientMessage } from "../handlers/clientMessage.js";
 import { handleOrder } from "../handlers/handleOrder.js";
 import { closeOrder } from "../handlers/closeOrder.js";
+import { performOrder } from "../handlers/performOrder.js";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
-
-// bot.onText(/\/start/, (msg) => {
 //   const chatId = msg.chat.id;
 //   const firstName = msg.from.first_name || "Пользователь";
 
@@ -67,6 +66,8 @@ bot.on("callback_query", (query) => {
   if (query.data.startsWith("cat_")) return handleCategory(bot, query);
   if (query.data.startsWith("take_order")) return handleOrder(bot, query);
   if (query.data.startsWith("close_order")) return closeOrder(bot, query);
+  if (query.data.startsWith("menu")) return handleStart(bot, query);
+  if (query.data.startsWith("perform_order")) return performOrder(bot, query);
 });
 
 bot.on("message", (msg) => handleClientMessage(bot, msg));

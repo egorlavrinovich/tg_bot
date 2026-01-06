@@ -14,7 +14,12 @@ export async function handleCategory(bot, query) {
 
   await bot.sendMessage(
     telegramId,
-    "Опишите, пожалуйста, задачу.\n\n" +
-      "Чем подробнее описание, тем больше релевантных откликов."
+    "Опишите, пожалуйста, задачу.\n" +
+      "Чем подробнее описание, тем больше релевантных откликов.",
+    {
+      reply_markup: {
+        inline_keyboard: [[{ text: "Отмена", callback_data: "role_client" }]],
+      },
+    }
   );
 }

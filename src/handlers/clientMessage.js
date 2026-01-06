@@ -20,8 +20,6 @@ export async function handleClientMessage(bot, msg) {
     }
   );
 
-  console.log(user);
-
   await Request.create({
     clientId: msg.from.id,
     category: user.selectedCategory,
@@ -38,11 +36,11 @@ export async function handleClientMessage(bot, msg) {
 
   await bot.sendMessage(
     msg.chat.id,
-    "Заявка отправлена. Ожидайте откликов специалистов.",
+    "Заявка отправлена.\nОжидайте откликов специалистов.",
     {
       reply_markup: {
         inline_keyboard: [
-          [{ text: "Закрыть заявку", callback_data: `close_order` }],
+          [{ text: "❌Закрыть заявку", callback_data: `close_order` }],
         ],
       },
     }

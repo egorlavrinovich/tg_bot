@@ -3,6 +3,8 @@ import User from "../models/User.js";
 export async function handleStart(bot, msg) {
   const telegramId = msg.from.id;
 
+  console.log(msg);
+
   await User.findOneAndUpdate(
     { telegramId },
     { telegramId, state: "ROLE_SELECT" },
@@ -10,7 +12,7 @@ export async function handleStart(bot, msg) {
   );
 
   await bot.sendMessage(
-    msg.chat.id,
+    msg?.chat?.id || msg?.message?.chat?.id,
     "Здравствуйте!\nУкажите, пожалуйста, кем вы являетесь:",
     {
       reply_markup: {

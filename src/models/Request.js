@@ -9,7 +9,11 @@ const RequestSchema = new Schema(
     text: String,
     channelMessageId: Number,
     expiresAt: Date,
-    status: { type: String, enum: ["active", "closed"], default: "active" },
+    status: {
+      type: String,
+      enum: ["active", "closed", "done"],
+      default: "active",
+    },
     messageId: String,
     telegramId: String,
   },
