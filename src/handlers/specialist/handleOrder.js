@@ -1,7 +1,7 @@
-import User from "../models/User.js";
-import { CATEGORIES } from "../lib/constants.js";
-import Request from "../models/Request.js";
-import Reaction from "../models/Reaction.js";
+import User from "../../models/User.js";
+import { CATEGORIES } from "../../lib/constants.js";
+import Request from "../../models/Request.js";
+import Reaction from "../../models/Reaction.js";
 
 export async function handleOrder(bot, reaction) {
   const request = await Request.findOne({

@@ -1,5 +1,5 @@
-import User from "../models/User.js";
-import { CATEGORIES } from "../lib/constants.js";
+import User from "../../models/User.js";
+import { CATEGORIES } from "../../lib/constants.js";
 
 export async function handleResendInvites(bot, query) {
   const telegramId = query.from.id;

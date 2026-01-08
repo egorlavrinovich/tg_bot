@@ -1,4 +1,4 @@
-import Request from "../models/Request.js";
+import Request from "../../models/Request.js";
 
 export const reviewCandidat = async (bot, query) => {
   const telegramId = query.from.id;

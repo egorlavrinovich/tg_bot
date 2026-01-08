@@ -1,4 +1,4 @@
-import Request from "../models/Request.js";
+import Request from "../../models/Request.js";
 
 export async function performOrder(bot, query) {
   const telegramId = query.from.id;

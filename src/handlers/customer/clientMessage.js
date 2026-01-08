@@ -1,5 +1,5 @@
-import User from "../models/User.js";
-import Request from "../models/Request.js";
+import User from "../../models/User.js";
+import Request from "../../models/Request.js";
 
 export async function handleClientMessage(bot, msg) {
   const user = await User.findOne({ telegramId: msg.from.id });

@@ -1,5 +1,5 @@
-import User from "../models/User.js";
-import { buildSpecialistCategoriesKeyboard } from "../utils/buildSpecialistCategoriesKeyboard.js";
+import User from "../../models/User.js";
+import { buildSpecialistCategoriesKeyboard } from "../../utils/buildSpecialistCategoriesKeyboard.js";
 
 export async function handleSpecialistCategory(bot, query) {
   const telegramId = query.from.id;
