@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 dotenv.config({ path: "./.env" });
 import { handleStart } from "../handlers/start.js";
 import { handleRole } from "../handlers/role.js";
-import { handleCategory } from "../handlers/customer/category.js";
 import { handleClientMessage } from "../handlers/customer/clientMessage.js";
 import { handleOrder } from "../handlers/specialist/handleOrder.js";
 import { closeOrder } from "../handlers/customer/closeOrder.js";
@@ -12,6 +11,7 @@ import { reviewCandidat } from "../handlers/customer/reviewCandidat.js";
 import { handleSpecialistCategory } from "../handlers/specialist/handleSpecialistCategory.js";
 import { handleSpecialistConfirm } from "../handlers/specialist/handleSpecialistConfirm.js";
 import { handleResendInvites } from "../handlers/specialist/handleResendInvites.js";
+import { handleClientCategorySelect } from "../handlers/handleClientCategorySelect.js";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
@@ -20,7 +20,8 @@ bot.onText(/\/start/, (msg) => handleStart(bot, msg));
 
 bot.on("callback_query", (query) => {
   if (query.data.startsWith("role_")) return handleRole(bot, query);
-  if (query.data.startsWith("cat_")) return handleCategory(bot, query);
+  if (query.data.startsWith("cat_"))
+    return handleClientCategorySelect(bot, query);
   if (query.data.startsWith("take_order")) return handleOrder(bot, query);
   if (query.data.startsWith("close_order")) return closeOrder(bot, query);
   if (query.data.startsWith("menu")) return handleStart(bot, query);

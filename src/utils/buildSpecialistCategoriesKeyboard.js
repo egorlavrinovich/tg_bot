@@ -5,8 +5,10 @@ export function buildSpecialistCategoriesKeyboard(selected = []) {
     inline_keyboard: [
       [
         ...CATEGORIES.map((cat) => ({
-          text: selected.includes(cat.key) ? `✅ ${cat.title}` : cat.title,
-          callback_data: `spec_cat_${cat.key}`,
+          text: selected.includes(cat.channelId)
+            ? `✅ ${cat.title}`
+            : cat.title,
+          callback_data: `spec_cat_${cat.channelId}`,
         })),
       ],
       [

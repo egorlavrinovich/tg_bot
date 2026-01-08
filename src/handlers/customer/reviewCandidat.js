@@ -5,7 +5,7 @@ export const reviewCandidat = async (bot, query) => {
 
   const category = query.data?.split("_");
 
-  if (category.length === 1) {
+  if (query.data.includes("candidat")) {
     await bot.editMessageReplyMarkup(
       {
         inline_keyboard: [

@@ -4,37 +4,48 @@ import { buildSpecialistCategoriesKeyboard } from "../utils/buildSpecialistCateg
 
 export async function handleRole(bot, query) {
   const telegramId = query.from.id;
+  const chatId = query.message.chat.id;
   const role = query.data === "role_client" ? "client" : "specialist";
 
-  await User.findOneAndUpdate(
-    { telegramId },
-    { role, state: role === "client" ? "CATEGORY_SELECT" : "START" }
-  );
+  const user = await User.findOne({ telegramId });
 
   if (role === "client") {
-    await bot.sendMessage(query.message.chat.id, "Выберите категорию услуги:", {
+    await User.findOneAndUpdate(
+      { telegramId },
+      { role: user?.role ? user.role : "client", state: "CATEGORY_SELECT" },
+      { upsert: true }
+    );
+
+    await bot.sendMessage(chatId, "Выберите категорию услуги:", {
       reply_markup: {
         inline_keyboard: [
           CATEGORIES.map(({ title, channelId }) => ({
             text: title,
             callback_data: `cat_${channelId}`,
           })),
+          [{ text: "🏠 Главное меню", callback_data: "menu" }],
         ],
       },
     });
-  } else {
-    await User.findOneAndUpdate(
-      { telegramId },
-      { role, state: "SPECIALIST_CATEGORY_SELECT", categories: [] },
-      { upsert: true }
-    );
 
-    await bot.sendMessage(
-      query.message.chat.id,
-      "Выберите категории, в которых вы работаете.\nМожно выбрать несколько:",
-      {
-        reply_markup: buildSpecialistCategoriesKeyboard([]),
-      }
-    );
+    return;
   }
+
+  await User.findOneAndUpdate(
+    { telegramId },
+    {
+      role: "specialist",
+      state: "SPECIALIST_CATEGORY_SELECT",
+      categories: [],
+    },
+    { upsert: true }
+  );
+
+  const chosenCategories = await bot.sendMessage(
+    chatId,
+    "Выберите категории, в которых вы работаете.\nМожно выбрать несколько:",
+    {
+      reply_markup: buildSpecialistCategoriesKeyboard([]),
+    }
+  );
 }
