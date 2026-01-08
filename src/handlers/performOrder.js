@@ -17,16 +17,40 @@ export async function performOrder(bot, query) {
         }
       );
 
-      await bot.editMessageText(`✅ Заявка закрыта\n\n`, {
-        chat_id: telegramId,
-        message_id: query.message.message_id,
-        reply_markup: {
+      await bot.editMessageReplyMarkup(
+        {
           inline_keyboard: [
-            [{ text: "➕ Новая заявка", callback_data: "role_client" }],
-            [{ text: "🏠 Главное меню", callback_data: "menu" }],
+            [{ text: "⭐ Оценить специалиста", callback_data: `review` }],
           ],
         },
-      });
+        {
+          chat_id: telegramId,
+          message_id: query.message.message_id,
+        }
+      );
+
+      await bot.editMessageReplyMarkup(
+        {
+          inline_keyboard: [],
+        },
+        {
+          chat_id: telegramId,
+          message_id: result?.closeRequestId,
+        }
+      );
+
+      await bot.sendMessage(
+        telegramId,
+        "Заявка закрыта. Что хотите сделать дальше?",
+        {
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: "➕ Новая заявка", callback_data: "role_client" }],
+              [{ text: "🏠 Главное меню", callback_data: "menu" }],
+            ],
+          },
+        }
+      );
     }
   }
 }

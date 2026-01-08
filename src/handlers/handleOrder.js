@@ -20,7 +20,6 @@ export async function handleOrder(bot, reaction) {
     requestId: request._id,
     specialistId: reaction?.from?.username,
   });
-  console.log(reaction);
 
   if (exists) return;
   await Reaction.create({
@@ -28,19 +27,18 @@ export async function handleOrder(bot, reaction) {
     specialistId: reaction?.from?.username,
     reactedAt: new Date(),
   });
-  console.log(request);
+
   await bot.sendMessage(
     request?.telegramId,
     `✅ На вашу заявку откликнулся специалист:
 
 👤 @${reaction?.from?.username}
 
-Свяжитесь с ним напрямую или выполните действие ниже.`,
+Свяжитесь с ним напрямую и подтвердите заказ.`,
     {
       reply_markup: {
         inline_keyboard: [
           [{ text: "✅ Подтвердить выбор", callback_data: `perform_order` }],
-          [{ text: "⭐ Оценить специалиста", callback_data: `review` }],
         ],
       },
     }

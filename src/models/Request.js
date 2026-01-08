@@ -16,6 +16,7 @@ const RequestSchema = new Schema(
     },
     messageId: String,
     telegramId: String,
+    closeRequestId: null || String,
   },
   { timestamps: true }
 );

@@ -20,13 +20,14 @@ export async function handleClientMessage(bot, msg) {
     }
   );
 
-  await Request.create({
+  const request = await Request.create({
     clientId: msg.from.id,
     category: user.selectedCategory,
     text: msg.text,
     messageId: sent.message_id,
     expiresAt,
     telegramId: msg.from.id,
+    closeRequestId: null,
   });
 
   await User.findOneAndUpdate(
@@ -34,7 +35,7 @@ export async function handleClientMessage(bot, msg) {
     { state: "START", selectedCategory: null }
   );
 
-  await bot.sendMessage(
+  const message = await bot.sendMessage(
     msg.chat.id,
     "Заявка отправлена.\nОжидайте откликов специалистов.",
     {
@@ -44,5 +45,10 @@ export async function handleClientMessage(bot, msg) {
         ],
       },
     }
+  );
+
+  await Request.findOneAndUpdate(
+    { messageId: sent.message_id },
+    { closeRequestId: message?.message_id }
   );
 }
