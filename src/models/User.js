@@ -10,6 +10,16 @@ const UserSchema = new Schema({
     default: "START",
   },
   selectedCategory: String,
+  categories: [String],
+  state: String,
+  pendingInvites: [
+    {
+      categoryKey: String,
+      channelId: Number,
+      expiresAt: Date,
+    },
+  ],
+  lastInviteSentAt: Date,
 });
 
 export default models.User || model("User", UserSchema);
