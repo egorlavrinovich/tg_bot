@@ -11,6 +11,7 @@ import { handleClientMessage } from "../handlers/clientMessage.js";
 import { handleOrder } from "../handlers/handleOrder.js";
 import { closeOrder } from "../handlers/closeOrder.js";
 import { performOrder } from "../handlers/performOrder.js";
+import { reviewCandidat } from "../handlers/reviewCandidat.js";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
@@ -68,12 +69,9 @@ bot.on("callback_query", (query) => {
   if (query.data.startsWith("close_order")) return closeOrder(bot, query);
   if (query.data.startsWith("menu")) return handleStart(bot, query);
   if (query.data.startsWith("perform_order")) return performOrder(bot, query);
+  if (query.data.startsWith("review")) return reviewCandidat(bot, query);
 });
 
 bot.on("message", (msg) => handleClientMessage(bot, msg));
-
-// bot.on("channel_post", (msg) => {
-//   console.log("CHANNEL ID:", msg.chat.id);
-// });
 
 export default bot;

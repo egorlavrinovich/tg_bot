@@ -20,7 +20,7 @@ export async function handleClientMessage(bot, msg) {
     }
   );
 
-  const request = await Request.create({
+  await Request.create({
     clientId: msg.from.id,
     category: user.selectedCategory,
     text: msg.text,
@@ -28,6 +28,8 @@ export async function handleClientMessage(bot, msg) {
     expiresAt,
     telegramId: msg.from.id,
     closeRequestId: null,
+    mark: null,
+    markMessageId: null,
   });
 
   await User.findOneAndUpdate(

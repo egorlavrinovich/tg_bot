@@ -5,7 +5,7 @@ export async function performOrder(bot, query) {
   if (query?.message?.message_id) {
     const result = await Request.findOneAndUpdate(
       { clientId: query.from.id, status: "active" },
-      { status: "done" }
+      { status: "done", markMessageId: query.message.message_id }
     );
 
     if (result && result?.text && result?.category) {
@@ -20,7 +20,12 @@ export async function performOrder(bot, query) {
       await bot.editMessageReplyMarkup(
         {
           inline_keyboard: [
-            [{ text: "⭐ Оценить специалиста", callback_data: `review` }],
+            [
+              {
+                text: "⭐ Оценить качество услуги",
+                callback_data: `review_candidat`,
+              },
+            ],
           ],
         },
         {
@@ -37,7 +42,7 @@ export async function performOrder(bot, query) {
           chat_id: telegramId,
           message_id: result?.closeRequestId,
         }
-      );
+      ); // редактируем сообщение на закрытие запроса
 
       await bot.sendMessage(
         telegramId,
