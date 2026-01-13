@@ -1,4 +1,13 @@
 import Request from "../../models/Request.js";
+import Specialist from "../../models/Specialist.js";
+
+function calcRating(orders = []) {
+  const marks = orders.map((o) => (o.mark ? Number(o.mark) : 5));
+
+  const avg = marks.reduce((a, b) => a + b, 0) / marks.length;
+
+  return Math.ceil((avg + Number.EPSILON) * 10) / 10;
+}
 
 export const reviewCandidat = async (bot, query) => {
   const telegramId = query.from.id;
@@ -40,9 +49,36 @@ export const reviewCandidat = async (bot, query) => {
     );
   } else {
     const mark = category?.[1];
-    await Request.findOneAndUpdate(
+
+    const request = await Request.findOneAndUpdate(
       { markMessageId: query?.message?.message_id },
       { mark }
+    );
+
+    const specialist = await Specialist.findOneAndUpdate(
+      {
+        "orders.requestId": request?._id,
+      },
+      {
+        $set: {
+          "orders.$.mark": mark,
+        },
+        $inc: {
+          reviewsCount: 1,
+        },
+      }
+    );
+    const userRating = calcRating(specialist.orders);
+
+    await Specialist.findOneAndUpdate(
+      {
+        "orders.requestId": request?._id,
+      },
+      {
+        $set: {
+          rating: userRating,
+        },
+      }
     );
     await bot.editMessageReplyMarkup(
       {

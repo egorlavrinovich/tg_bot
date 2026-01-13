@@ -13,6 +13,7 @@ const SpecialistSchema = new Schema({
       requestId: { type: Schema.Types.ObjectId, ref: "Request" },
       reactedAt: Date,
       requestText: String,
+      mark: String || undefined,
     },
   ],
 });
