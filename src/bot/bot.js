@@ -14,7 +14,7 @@ import { handleResendInvites } from "../handlers/specialist/handleResendInvites.
 import { handleClientCategorySelect } from "../handlers/handleClientCategorySelect.js";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token);
 
 bot.onText(/\/start/, (msg) => handleStart(bot, msg));
 
