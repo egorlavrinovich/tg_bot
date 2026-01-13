@@ -7,7 +7,7 @@
   "author": "Lavrinoich Egor",
   "license": "ISC",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon api/telegram.js"
   },
   "dependencies": {
     "body-parser": "^2.2.1",
