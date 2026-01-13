@@ -1,18 +1,16 @@
+import express from "express";
 import mongoose from "mongoose";
+const app = express();
+app.use(express.json());
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
-export default async function dbConnect() {
-  if (cached.conn) return cached.conn;
-
-  if (!cached.promise) {
-    cached.promise = mongoose.connect(process.env.DB_TOKEN);
+(async function run() {
+  try {
+    await mongoose.connect(process.env.DB_TOKEN);
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (e) {
+    console.log(e);
   }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
-}
+})().catch((e) => console.log(e));
