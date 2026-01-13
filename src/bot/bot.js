@@ -18,7 +18,7 @@ const bot = new TelegramBot(token, { polling: true });
 
 bot.onText(/\/start/, (msg) => handleStart(bot, msg));
 
-bot.on("callback_query", (query) => {
+bot.on("callback_query", async (query) => {
   if (query.data.startsWith("role_")) return handleRole(bot, query);
   if (query.data.startsWith("cat_"))
     return handleClientCategorySelect(bot, query);
@@ -34,5 +34,9 @@ bot.on("callback_query", (query) => {
 });
 
 bot.on("message", (msg) => handleClientMessage(bot, msg));
+
+// bot.on("channel_post", (msg) => {
+//   console.log("CHANNEL ID:", msg.chat.id);
+// }); // Нужен для уточнения ид канала
 
 export default bot;

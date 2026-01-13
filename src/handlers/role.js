@@ -9,6 +9,12 @@ export async function handleRole(bot, query) {
 
   const user = await User.findOne({ telegramId });
 
+  if (user?.state === "WAITING_CONFIRM")
+    return bot.sendMessage(
+      query?.chat?.id || query?.message?.chat?.id,
+      "У вас открыта заявка, чтобы продолжить нужно закрыть заявку"
+    );
+
   if (role === "client") {
     await User.findOneAndUpdate(
       { telegramId },

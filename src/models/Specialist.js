@@ -6,8 +6,15 @@ const SpecialistSchema = new Schema({
   telegramId: { type: Number, unique: true },
   username: String,
   categories: [String],
-  rating: { type: Number, default: 5 },
+  rating: { type: Number, default: 0 },
   reviewsCount: { type: Number, default: 0 },
+  orders: [
+    {
+      requestId: { type: Schema.Types.ObjectId, ref: "Request" },
+      reactedAt: Date,
+      requestText: String,
+    },
+  ],
 });
 
 export default models.Specialist || model("Specialist", SpecialistSchema);

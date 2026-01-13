@@ -1,7 +1,9 @@
 import Request from "../../models/Request.js";
+import User from "../../models/User.js";
 
 export async function closeOrder(bot, query) {
   const telegramId = query.from.id;
+
   if (query?.message?.message_id) {
     const result = await Request.findOneAndUpdate(
       { clientId: query.from.id, status: "active" },
@@ -15,6 +17,12 @@ export async function closeOrder(bot, query) {
           chat_id: result?.category,
           message_id: result?.messageId,
         }
+      );
+
+      await User.findOneAndUpdate(
+        { telegramId },
+        { telegramId, state: "CLOSE_REQUEST" },
+        { upsert: true }
       );
 
       await bot.editMessageText(`❌ Заявка закрыта\n\n`, {

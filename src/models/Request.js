@@ -19,6 +19,8 @@ const RequestSchema = new Schema(
     closeRequestId: null || String,
     markMessageId: null || String,
     mark: null || String,
+    requestId: null || String,
+    specialistId: null || String,
   },
   { timestamps: true }
 );

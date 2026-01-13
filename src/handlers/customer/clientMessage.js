@@ -10,7 +10,7 @@ export async function handleClientMessage(bot, msg) {
 
   const sent = await bot.sendMessage(
     user.selectedCategory,
-    `Новая заявка:\n\n${msg.text}\n\n`,
+    `Новая заявка №${msg?.message_id}:\n\n${msg.text}\n\n`,
     {
       reply_markup: {
         inline_keyboard: [
@@ -20,37 +20,32 @@ export async function handleClientMessage(bot, msg) {
     }
   );
 
-  await Request.create({
-    clientId: msg.from.id,
-    category: user.selectedCategory,
-    text: msg.text,
-    messageId: sent.message_id,
-    expiresAt,
-    telegramId: msg.from.id,
-    closeRequestId: null,
-    mark: null,
-    markMessageId: null,
-  });
-
-  await User.findOneAndUpdate(
-    { telegramId: msg.from.id },
-    { state: "START", selectedCategory: null }
-  );
-
-  const message = await bot.sendMessage(
-    msg.chat.id,
-    "Заявка отправлена.\nОжидайте откликов специалистов.",
-    {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "❌Закрыть заявку", callback_data: `close_order` }],
-        ],
-      },
-    }
-  );
-
-  await Request.findOneAndUpdate(
-    { messageId: sent.message_id },
-    { closeRequestId: message?.message_id }
-  );
+  try {
+    const message = await bot.sendMessage(
+      msg.chat.id,
+      "Заявка отправлена.\nОжидайте откликов специалистов.",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "❌Закрыть заявку", callback_data: `close_order` }],
+          ],
+        },
+      }
+    );
+    await Request.create({
+      clientId: msg.from.id,
+      category: user.selectedCategory,
+      text: msg.text,
+      messageId: sent.message_id,
+      expiresAt,
+      telegramId: msg.from.id,
+      closeRequestId: message?.message_id, //TODO посмотреть почему обрабатывает предыдущую заявку
+      mark: null,
+      markMessageId: null,
+    });
+    await User.findOneAndUpdate(
+      { telegramId: msg.from.id },
+      { state: "WAITING_CONFIRM", selectedCategory: null }
+    );
+  } catch (error) {}
 }

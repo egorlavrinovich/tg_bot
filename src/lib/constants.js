@@ -5,8 +5,13 @@ export const CATEGORIES = [
     channelId: -1003515003965,
   },
   {
-    key: "electric",
-    title: "Электрик",
-    channelId: -1001234567891,
+    key: "movers",
+    title: "Грузчики",
+    channelId: -1003582886823,
+  },
+  {
+    key: "carriers",
+    title: "Перевозчики",
+    channelId: -1003437462575,
   },
 ];

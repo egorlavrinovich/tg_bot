@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import { handleCategory } from "./customer/category.js";
+import { CATEGORIES } from "../lib/constants.js";
 
 export async function handleClientCategorySelect(bot, query) {
   const telegramId = query.from.id;
@@ -18,6 +19,25 @@ export async function handleClientCategorySelect(bot, query) {
     );
     return;
   }
+
+  const category = CATEGORIES.find(
+    (item) => item.channelId === +query.data.split("_")[1]
+  )?.title;
+
+  await bot.editMessageReplyMarkup(
+    {
+      inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]],
+    },
+    {
+      chat_id: telegramId,
+      message_id: query.message.message_id,
+    }
+  );
+
+  await bot.editMessageText(`Вы выбрали категорию: ${category}`, {
+    chat_id: telegramId,
+    message_id: query.message.message_id,
+  });
 
   user.state = "CLIENT_CREATE_REQUEST";
   user.selectedCategory = categoryId;

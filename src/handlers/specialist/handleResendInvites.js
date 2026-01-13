@@ -9,7 +9,7 @@ export async function handleResendInvites(bot, query) {
   if (!user || !user.categories?.length) return;
 
   const selectedCategories = CATEGORIES.filter((c) =>
-    user.categories.includes(c.key)
+    user.categories.includes(c.channelId)
   );
 
   let text = "Повторные ссылки на группы:\n";
