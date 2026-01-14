@@ -16,20 +16,20 @@ const bot = new TelegramBot(token);
 
 bot.onText(/\/start/, (msg) => handleStart(bot, msg));
 
-bot.on("callback_query", async (query) => {
-  if (query.data.startsWith("role_")) return handleRole(bot, query);
-  if (query.data.startsWith("cat_"))
-    return handleClientCategorySelect(bot, query);
-  if (query.data.startsWith("take_order")) return handleOrder(bot, query);
-  if (query.data.startsWith("close_order")) return closeOrder(bot, query);
-  if (query.data.startsWith("menu")) return handleStart(bot, query);
-  if (query.data.startsWith("perform_order")) return performOrder(bot, query);
-  if (query.data.startsWith("review")) return reviewCandidat(bot, query);
-  if (query.data.startsWith("spec_cat_"))
-    return handleSpecialistCategory(bot, query);
-  if (query.data === "spec_confirm") return handleSpecialistConfirm(bot, query);
-  if (query.data === "resend_invites") return handleResendInvites(bot, query);
-});
+// bot.on("callback_query", async (query) => {
+//   if (query.data.startsWith("role_")) return handleRole(bot, query);
+//   if (query.data.startsWith("cat_"))
+//     return handleClientCategorySelect(bot, query);
+//   if (query.data.startsWith("take_order")) return handleOrder(bot, query);
+//   if (query.data.startsWith("close_order")) return closeOrder(bot, query);
+//   if (query.data.startsWith("menu")) return handleStart(bot, query);
+//   if (query.data.startsWith("perform_order")) return performOrder(bot, query);
+//   if (query.data.startsWith("review")) return reviewCandidat(bot, query);
+//   if (query.data.startsWith("spec_cat_"))
+//     return handleSpecialistCategory(bot, query);
+//   if (query.data === "spec_confirm") return handleSpecialistConfirm(bot, query);
+//   if (query.data === "resend_invites") return handleResendInvites(bot, query);
+// });
 
 bot.on("message", (msg) => handleClientMessage(bot, msg));
 
