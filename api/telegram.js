@@ -1,5 +1,10 @@
-import bot from "../src/bot/bot.js";
+// import bot from "../src/bot/bot.js";
 import dbConnect from "../src/lib/db.js";
+
+const token = process.env.TELEGRAM_BOT_TOKEN;
+const bot = new TelegramBot(token);
+
+bot.onText(/\/start/, (msg) => handleStart(bot, msg));
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
