@@ -35,8 +35,8 @@ bot.on("callback_query", async (query) => {
 
 bot.on("message", (msg) => handleClientMessage(bot, msg));
 
-bot.on("channel_post", (msg) => {
-  console.log("CHANNEL ID:", msg.chat.id);
-}); // Нужен для уточнения ид канала
+// bot.on("channel_post", (msg) => {
+//   console.log("CHANNEL ID:", msg.chat.id);
+// }); // Нужен для уточнения ид канала
 
 export default bot;
