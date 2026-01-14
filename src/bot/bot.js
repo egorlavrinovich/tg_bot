@@ -1,6 +1,4 @@
 import TelegramBot from "node-telegram-bot-api";
-import dotenv from "dotenv";
-dotenv.config({ path: "./.env" });
 import { handleStart } from "../handlers/start.js";
 import { handleRole } from "../handlers/role.js";
 import { handleClientMessage } from "../handlers/customer/clientMessage.js";
