@@ -1,8 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-import bot from "./src/bot/bot.js";
-import webhook from "./src/routes/webhook.js";
+// import dotenv from "dotenv";
+// import bot from "../src/bot/bot.js";
+// import webhook from "./src/routes/webhook.js";
 
 const app = express();
 app.use(express.json());
