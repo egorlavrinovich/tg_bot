@@ -1,11 +1,4 @@
-// import bot from "../src/bot/bot.js";
-import dbConnect from "../src/lib/db.js";
-import TelegramBot from "node-telegram-bot-api";
-
-const token = process.env.TELEGRAM_BOT_TOKEN;
-const bot = new TelegramBot(token);
-
-bot.onText(/\/start/, (msg) => handleStart(bot, msg));
+import bot from "../src/bot/bot2.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -13,11 +6,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    await dbConnect(); // ⬅️ ОБЯЗАТЕЛЬНО
     await bot.processUpdate(req.body);
-    res.status(200).json({ ok: true });
-  } catch (e) {
-    console.error("Webhook error:", e);
-    res.status(500).json({ ok: false });
+    return res.status(200).json({ ok: true });
+  } catch (error) {
+    console.error("Telegram webhook error:", error);
+    return res.status(500).json({ ok: false });
   }
 }
