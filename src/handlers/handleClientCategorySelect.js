@@ -1,7 +1,4 @@
-import {
-  findUserByTelegramId,
-  updateUserStateAndCategory,
-} from "../models/User.js";
+import { findUserByTelegramId } from "../models/User.js";
 import { handleCategory } from "./customer/category.js";
 import { CATEGORIES } from "../lib/constants.js";
 import { safeEditMessageReplyMarkup, safeEditMessageText } from "../bot/bot.js";
@@ -46,12 +43,6 @@ export async function handleClientCategorySelect(bot, query) {
       chat_id: telegramId,
       message_id: query.message.message_id,
     }
-  );
-
-  await updateUserStateAndCategory(
-    telegramId,
-    "CLIENT_CREATE_REQUEST",
-    categoryId
   );
 
   handleCategory(bot, query);

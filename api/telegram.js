@@ -43,7 +43,12 @@ export default async function handler(req, res) {
       console.error("Webhook: empty/unparseable update body");
       return;
     }
+    const start = Date.now();
     await bot.processUpdate(update);
+    const elapsed = Date.now() - start;
+    if (elapsed > 1000) {
+      console.warn("Slow update processing:", { elapsedMs: elapsed });
+    }
   } catch (e) {
     console.error("Async webhook error:", e);
   }
