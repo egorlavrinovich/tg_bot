@@ -14,6 +14,24 @@ import { handleClientCategorySelect } from "../handlers/handleClientCategorySele
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token);
 
+// Безопасный вызов answerCallbackQuery, чтобы не падать на "query is too old"
+export async function safeAnswerCallbackQuery(bot, query, options = {}) {
+  if (!query?.id) return;
+  try {
+    await bot.answerCallbackQuery(query.id, options);
+  } catch (e) {
+    // Ошибка 400 "query is too old" от Telegram — логируем и продолжаем
+    if (
+      e?.response?.body?.description &&
+      e.response.body.description.includes("query is too old")
+    ) {
+      console.warn("Ignored old callback_query:", e.response.body.description);
+      return;
+    }
+    console.error("answerCallbackQuery error:", e);
+  }
+}
+
 bot.onText(/\/start/, (msg) => handleStart(bot, msg));
 
 bot.on("callback_query", async (query) => {

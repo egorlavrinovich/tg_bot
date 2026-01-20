@@ -1,5 +1,6 @@
 import User from "../../models/User.js";
 import { CATEGORIES } from "../../lib/constants.js";
+import { safeAnswerCallbackQuery } from "../../bot/bot.js";
 
 export async function handleSpecialistConfirm(bot, query) {
   const telegramId = query.from.id;
@@ -8,10 +9,11 @@ export async function handleSpecialistConfirm(bot, query) {
   const user = await User.findOne({ telegramId });
 
   if (!user || !user.categories?.length) {
-    return bot.answerCallbackQuery(query.id, {
+    await safeAnswerCallbackQuery(bot, query, {
       text: "Выберите хотя бы одну категорию",
       show_alert: true,
     });
+    return;
   }
 
   const selectedCategories = CATEGORIES.filter((c) =>
@@ -63,5 +65,5 @@ export async function handleSpecialistConfirm(bot, query) {
   user.state = "AWAITING_CHANNEL_JOIN";
   await user.save();
 
-  await bot.answerCallbackQuery(query.id);
+  await safeAnswerCallbackQuery(bot, query);
 }

@@ -1,5 +1,6 @@
 import User from "../../models/User.js";
 import { buildSpecialistCategoriesKeyboard } from "../../utils/buildSpecialistCategoriesKeyboard.js";
+import { safeAnswerCallbackQuery } from "../../bot/bot.js";
 
 export async function handleSpecialistCategory(bot, query) {
   const telegramId = query.from.id;
@@ -27,5 +28,5 @@ export async function handleSpecialistCategory(bot, query) {
     }
   );
 
-  await bot.answerCallbackQuery(query.id);
+  await safeAnswerCallbackQuery(bot, query);
 }

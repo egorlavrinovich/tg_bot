@@ -1,5 +1,6 @@
 import User from "../../models/User.js";
 import { CATEGORIES } from "../../lib/constants.js";
+import { safeAnswerCallbackQuery } from "../../bot/bot.js";
 
 export async function handleResendInvites(bot, query) {
   const telegramId = query.from.id;
@@ -40,5 +41,5 @@ export async function handleResendInvites(bot, query) {
   await user.save();
 
   await bot.sendMessage(chatId, text);
-  await bot.answerCallbackQuery(query.id);
+  await safeAnswerCallbackQuery(bot, query);
 }
