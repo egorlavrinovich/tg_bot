@@ -1,10 +1,9 @@
-import {
-  setRequestMarkByMarkMessageId,
-} from "../../models/Request.js";
+import { setRequestMarkByMarkMessageId } from "../../models/Request.js";
 import {
   setSpecialistOrderMarkByRequestId,
   recalcSpecialistRatingByRequestId,
 } from "../../models/Specialist.js";
+import { safeEditMessageReplyMarkup } from "../../bot/bot.js";
 
 function calcRating(orders = []) {
   const marks = orders.map((o) => (o.mark ? Number(o.mark) : 5));
@@ -20,7 +19,8 @@ export const reviewCandidat = async (bot, query) => {
   const category = query.data?.split("_");
 
   if (query.data.includes("candidat")) {
-    await bot.editMessageReplyMarkup(
+    await safeEditMessageReplyMarkup(
+      bot,
       {
         inline_keyboard: [
           [
@@ -64,7 +64,8 @@ export const reviewCandidat = async (bot, query) => {
       await setSpecialistOrderMarkByRequestId(request.id, mark);
       await recalcSpecialistRatingByRequestId(request.id);
     }
-    await bot.editMessageReplyMarkup(
+    await safeEditMessageReplyMarkup(
+      bot,
       {
         inline_keyboard: [
           [

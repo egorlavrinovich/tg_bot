@@ -4,6 +4,7 @@ import {
 } from "../models/User.js";
 import { handleCategory } from "./customer/category.js";
 import { CATEGORIES } from "../lib/constants.js";
+import { safeEditMessageReplyMarkup, safeEditMessageText } from "../bot/bot.js";
 
 export async function handleClientCategorySelect(bot, query) {
   const telegramId = query.from.id;
@@ -27,7 +28,8 @@ export async function handleClientCategorySelect(bot, query) {
     (item) => item.channelId === +query.data.split("_")[1]
   )?.title;
 
-  await bot.editMessageReplyMarkup(
+  await safeEditMessageReplyMarkup(
+    bot,
     {
       inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]],
     },
@@ -37,10 +39,14 @@ export async function handleClientCategorySelect(bot, query) {
     }
   );
 
-  await bot.editMessageText(`Вы выбрали категорию: ${category}`, {
-    chat_id: telegramId,
-    message_id: query.message.message_id,
-  });
+  await safeEditMessageText(
+    bot,
+    `Вы выбрали категорию: ${category}`,
+    {
+      chat_id: telegramId,
+      message_id: query.message.message_id,
+    }
+  );
 
   await updateUserStateAndCategory(
     telegramId,

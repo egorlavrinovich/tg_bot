@@ -1,5 +1,9 @@
 import { completeActiveRequest } from "../../models/Request.js";
 import { setUserState } from "../../models/User.js";
+import {
+  safeEditMessageText,
+  safeEditMessageReplyMarkup,
+} from "../../bot/bot.js";
 
 export async function performOrder(bot, query) {
   const telegramId = query.from.id;
@@ -11,7 +15,8 @@ export async function performOrder(bot, query) {
       );
 
       if (result && result?.text && result?.category) {
-        await bot.editMessageText(
+        await safeEditMessageText(
+          bot,
           `✅ Заявка выполнена\n\n` + `${result?.text}\n\n`,
           {
             chat_id: result?.category,
@@ -21,7 +26,8 @@ export async function performOrder(bot, query) {
 
         await setUserState(telegramId, "PERFORM_REQUEST");
 
-        await bot.editMessageReplyMarkup(
+        await safeEditMessageReplyMarkup(
+          bot,
           {
             inline_keyboard: [
               [
@@ -38,7 +44,8 @@ export async function performOrder(bot, query) {
           }
         );
 
-        await bot.editMessageReplyMarkup(
+        await safeEditMessageReplyMarkup(
+          bot,
           {
             inline_keyboard: [],
           },

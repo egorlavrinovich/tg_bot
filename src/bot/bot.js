@@ -32,6 +32,40 @@ export async function safeAnswerCallbackQuery(bot, query, options = {}) {
   }
 }
 
+// Безопасные обёртки для редактирования сообщений — игнорируют 400 "message is not modified"
+export async function safeEditMessageText(bot, text, options) {
+  try {
+    await bot.editMessageText(text, options);
+  } catch (e) {
+    if (
+      e?.response?.body?.description &&
+      e.response.body.description.includes("message is not modified")
+    ) {
+      console.warn("Ignored editMessageText error:", e.response.body.description);
+      return;
+    }
+    console.error("editMessageText error:", e);
+  }
+}
+
+export async function safeEditMessageReplyMarkup(bot, replyMarkup, options) {
+  try {
+    await bot.editMessageReplyMarkup(replyMarkup, options);
+  } catch (e) {
+    if (
+      e?.response?.body?.description &&
+      e.response.body.description.includes("message is not modified")
+    ) {
+      console.warn(
+        "Ignored editMessageReplyMarkup error:",
+        e.response.body.description
+      );
+      return;
+    }
+    console.error("editMessageReplyMarkup error:", e);
+  }
+}
+
 bot.onText(/\/start/, (msg) => handleStart(bot, msg));
 
 bot.on("callback_query", async (query) => {
