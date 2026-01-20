@@ -32,6 +32,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true });
   }
 
+  console.log("Incoming Telegram update");
   const update = await readJsonBody(req);
 
   // ⚠️ Telegram ждёт быстрый 200 OK, иначе будут ретраи
@@ -43,6 +44,7 @@ export default async function handler(req, res) {
       console.error("Webhook: empty/unparseable update body");
       return;
     }
+    console.log("Update body:", JSON.stringify(update));
     await bot.processUpdate(update);
   } catch (e) {
     console.error("Async webhook error:", e);

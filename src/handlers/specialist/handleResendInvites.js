@@ -35,7 +35,12 @@ export async function handleResendInvites(bot, query) {
         channelId: category.channelId,
         expiresAt: new Date(Date.now() + 60 * 60 * 1000),
       });
-    } catch {
+    } catch (error) {
+      console.error(
+        "handleResendInvites: error creating invite link",
+        category,
+        error
+      );
       text += `\n${category.title}: ❌ ошибка`;
     }
   }

@@ -54,5 +54,7 @@ export async function handleClientMessage(bot, msg) {
       "WAITING_CONFIRM",
       null
     );
-  } catch (error) {}
+  } catch (error) {
+    console.error("handleClientMessage error:", error);
+  }
 }
