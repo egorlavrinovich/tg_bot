@@ -1,5 +1,10 @@
-import Request from "../../models/Request.js";
-import Specialist from "../../models/Specialist.js";
+import {
+  setRequestMarkByMarkMessageId,
+} from "../../models/Request.js";
+import {
+  setSpecialistOrderMarkByRequestId,
+  recalcSpecialistRatingByRequestId,
+} from "../../models/Specialist.js";
 
 function calcRating(orders = []) {
   const marks = orders.map((o) => (o.mark ? Number(o.mark) : 5));
@@ -50,36 +55,15 @@ export const reviewCandidat = async (bot, query) => {
   } else {
     const mark = category?.[1];
 
-    const request = await Request.findOneAndUpdate(
-      { markMessageId: query?.message?.message_id },
-      { mark }
+    const request = await setRequestMarkByMarkMessageId(
+      query?.message?.message_id,
+      mark
     );
 
-    const specialist = await Specialist.findOneAndUpdate(
-      {
-        "orders.requestId": request?._id,
-      },
-      {
-        $set: {
-          "orders.$.mark": mark,
-        },
-        $inc: {
-          reviewsCount: 1,
-        },
-      }
-    );
-    const userRating = calcRating(specialist.orders);
-
-    await Specialist.findOneAndUpdate(
-      {
-        "orders.requestId": request?._id,
-      },
-      {
-        $set: {
-          rating: userRating,
-        },
-      }
-    );
+    if (request) {
+      await setSpecialistOrderMarkByRequestId(request.id, mark);
+      await recalcSpecialistRatingByRequestId(request.id);
+    }
     await bot.editMessageReplyMarkup(
       {
         inline_keyboard: [

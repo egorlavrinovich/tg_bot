@@ -1,4 +1,7 @@
-import User from "../../models/User.js";
+import {
+  findUserByTelegramId,
+  updateUserPendingInvites,
+} from "../../models/User.js";
 import { CATEGORIES } from "../../lib/constants.js";
 import { safeAnswerCallbackQuery } from "../../bot/bot.js";
 
@@ -6,7 +9,7 @@ export async function handleSpecialistConfirm(bot, query) {
   const telegramId = query.from.id;
   const chatId = query.message.chat.id;
 
-  const user = await User.findOne({ telegramId });
+  const user = await findUserByTelegramId(telegramId);
 
   if (!user || !user.categories?.length) {
     await safeAnswerCallbackQuery(bot, query, {
@@ -60,10 +63,12 @@ export async function handleSpecialistConfirm(bot, query) {
     },
   });
 
-  user.pendingInvites = pendingInvites;
-  user.lastInviteSentAt = new Date();
-  user.state = "AWAITING_CHANNEL_JOIN";
-  await user.save();
+  await updateUserPendingInvites(
+    telegramId,
+    pendingInvites,
+    new Date(),
+    "AWAITING_CHANNEL_JOIN"
+  );
 
   await safeAnswerCallbackQuery(bot, query);
 }

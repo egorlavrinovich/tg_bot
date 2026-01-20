@@ -1,32 +1,85 @@
-import mongoose from "mongoose";
-const { Schema, model, models } = mongoose;
+import { sql } from "../lib/db.js";
 
-const UserSchema = new Schema({
-  telegramId: { type: Number, unique: true },
-  role: { type: String, enum: ["client", "specialist"], default: null },
-  state: {
-    type: String,
-    enum: [
-      "START",
-      "ROLE_SELECT",
-      "CATEGORY_SELECT",
-      "WAIT_MESSAGE",
-      "SPECIALIST_CATEGORY_SELECT",
-      "CLIENT_CREATE_REQUEST",
-      "AWAITING_CHANNEL_JOIN",
-    ],
-    default: "START",
-  },
-  selectedCategory: String, // категория, выбранная клиентом
-  categories: { type: [String], default: [] }, // категории специалиста
-  pendingInvites: [
-    {
-      categoryKey: String,
-      channelId: Number,
-      expiresAt: Date,
-    },
-  ],
-  lastInviteSentAt: Date,
-});
+// Таблица users в Neon:
+// id                SERIAL PRIMARY KEY
+// telegram_id       BIGINT UNIQUE NOT NULL
+// role              TEXT
+// state             TEXT
+// selected_category TEXT
+// categories        TEXT[]
+// pending_invites   JSONB
+// last_invite_sent_at TIMESTAMPTZ
 
-export default models.User || model("User", UserSchema);
+export async function findUserByTelegramId(telegramId) {
+  const rows = await sql`
+    SELECT *
+    FROM users
+    WHERE telegram_id = ${telegramId}
+    LIMIT 1
+  `;
+  return rows[0] || null;
+}
+
+export async function updateUserStateAndCategory(telegramId, state, selectedCategory) {
+  const rows = await sql`
+    INSERT INTO users (telegram_id, state, selected_category)
+    VALUES (${telegramId}, ${state}, ${selectedCategory})
+    ON CONFLICT (telegram_id) DO UPDATE SET
+      state = EXCLUDED.state,
+      selected_category = EXCLUDED.selected_category
+    RETURNING *
+  `;
+  return rows[0];
+}
+
+export async function upsertUserRoleAndState(telegramId, role, state, categories = []) {
+  const rows = await sql`
+    INSERT INTO users (telegram_id, role, state, categories)
+    VALUES (${telegramId}, ${role}, ${state}, ${categories})
+    ON CONFLICT (telegram_id) DO UPDATE SET
+      role = EXCLUDED.role,
+      state = EXCLUDED.state,
+      categories = EXCLUDED.categories
+    RETURNING *
+  `;
+  return rows[0];
+}
+
+export async function updateUserCategories(telegramId, categories) {
+  const rows = await sql`
+    UPDATE users
+    SET categories = ${categories}
+    WHERE telegram_id = ${telegramId}
+    RETURNING *
+  `;
+  return rows[0];
+}
+
+export async function updateUserPendingInvites(
+  telegramId,
+  pendingInvites,
+  lastInviteSentAt,
+  state
+) {
+  const rows = await sql`
+    INSERT INTO users (telegram_id, pending_invites, last_invite_sent_at, state)
+    VALUES (${telegramId}, ${pendingInvites}, ${lastInviteSentAt}, ${state})
+    ON CONFLICT (telegram_id) DO UPDATE SET
+      pending_invites = EXCLUDED.pending_invites,
+      last_invite_sent_at = EXCLUDED.last_invite_sent_at,
+      state = EXCLUDED.state
+    RETURNING *
+  `;
+  return rows[0];
+}
+
+export async function setUserState(telegramId, state) {
+  const rows = await sql`
+    INSERT INTO users (telegram_id, state)
+    VALUES (${telegramId}, ${state})
+    ON CONFLICT (telegram_id) DO UPDATE SET
+      state = EXCLUDED.state
+    RETURNING *
+  `;
+  return rows[0];
+}

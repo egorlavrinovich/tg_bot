@@ -1,5 +1,4 @@
 import bot from "../src/bot/bot.js";
-import dbConnect from "../src/lib/db.js";
 
 async function readJsonBody(req) {
   // @vercel/node иногда уже кладёт распарсенный body
@@ -40,7 +39,6 @@ export default async function handler(req, res) {
 
   // ⬇️ всё ниже — НЕ блокирует Telegram
   try {
-    await dbConnect();
     if (!update) {
       console.error("Webhook: empty/unparseable update body");
       return;

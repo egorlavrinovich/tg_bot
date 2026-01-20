@@ -1,8 +1,11 @@
-import User from "../../models/User.js";
-import Request from "../../models/Request.js";
+import {
+  findUserByTelegramId,
+  updateUserStateAndCategory,
+} from "../../models/User.js";
+import { createRequest } from "../../models/Request.js";
 
 export async function handleClientMessage(bot, msg) {
-  const user = await User.findOne({ telegramId: msg.from.id });
+  const user = await findUserByTelegramId(msg.from.id);
 
   if (!user || user.state !== "WAIT_MESSAGE" || !user.selectedCategory) return;
 
@@ -32,20 +35,24 @@ export async function handleClientMessage(bot, msg) {
         },
       }
     );
-    await Request.create({
+    await createRequest({
       clientId: msg.from.id,
-      category: user.selectedCategory,
+      category: user.selected_category,
       text: msg.text,
-      messageId: sent.message_id,
+      channelMessageId: sent.message_id,
       expiresAt,
+      status: "active",
+      messageId: String(sent.message_id),
       telegramId: msg.from.id,
-      closeRequestId: message?.message_id, //TODO посмотреть почему обрабатывает предыдущую заявку
+      closeRequestId: message?.message_id ?? null,
       mark: null,
       markMessageId: null,
+      specialistId: null,
     });
-    await User.findOneAndUpdate(
-      { telegramId: msg.from.id },
-      { state: "WAITING_CONFIRM", selectedCategory: null }
+    await updateUserStateAndCategory(
+      msg.from.id,
+      "WAITING_CONFIRM",
+      null
     );
   } catch (error) {}
 }

@@ -1,4 +1,7 @@
-import User from "../models/User.js";
+import {
+  findUserByTelegramId,
+  upsertUserRoleAndState,
+} from "../models/User.js";
 import { CATEGORIES } from "../lib/constants.js";
 import { buildSpecialistCategoriesKeyboard } from "../utils/buildSpecialistCategoriesKeyboard.js";
 
@@ -7,7 +10,7 @@ export async function handleRole(bot, query) {
   const chatId = query.message.chat.id;
   const role = query.data === "role_client" ? "client" : "specialist";
 
-  const user = await User.findOne({ telegramId });
+  const user = await findUserByTelegramId(telegramId);
 
   if (user?.state === "WAITING_CONFIRM")
     return bot.sendMessage(
@@ -16,10 +19,10 @@ export async function handleRole(bot, query) {
     );
 
   if (role === "client") {
-    await User.findOneAndUpdate(
-      { telegramId },
-      { role: user?.role ? user.role : "client", state: "CATEGORY_SELECT" },
-      { upsert: true }
+    await upsertUserRoleAndState(
+      telegramId,
+      user?.role ? user.role : "client",
+      "CATEGORY_SELECT"
     );
 
     await bot.sendMessage(chatId, "Выберите категорию услуги:", {
@@ -37,14 +40,11 @@ export async function handleRole(bot, query) {
     return;
   }
 
-  await User.findOneAndUpdate(
-    { telegramId },
-    {
-      role: "specialist",
-      state: "SPECIALIST_CATEGORY_SELECT",
-      categories: [],
-    },
-    { upsert: true }
+  await upsertUserRoleAndState(
+    telegramId,
+    "specialist",
+    "SPECIALIST_CATEGORY_SELECT",
+    []
   );
 
   const chosenCategories = await bot.sendMessage(

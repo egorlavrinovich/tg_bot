@@ -1,4 +1,7 @@
-import User from "../../models/User.js";
+import {
+  findUserByTelegramId,
+  updateUserPendingInvites,
+} from "../../models/User.js";
 import { CATEGORIES } from "../../lib/constants.js";
 import { safeAnswerCallbackQuery } from "../../bot/bot.js";
 
@@ -6,7 +9,7 @@ export async function handleResendInvites(bot, query) {
   const telegramId = query.from.id;
   const chatId = query.message.chat.id;
 
-  const user = await User.findOne({ telegramId });
+  const user = await findUserByTelegramId(telegramId);
   if (!user || !user.categories?.length) return;
 
   const selectedCategories = CATEGORIES.filter((c) =>
@@ -15,7 +18,7 @@ export async function handleResendInvites(bot, query) {
 
   let text = "Повторные ссылки на группы:\n";
 
-  user.pendingInvites = [];
+  const pendingInvites = [];
 
   for (const category of selectedCategories) {
     try {
@@ -27,7 +30,7 @@ export async function handleResendInvites(bot, query) {
 
       text += `\n${category.title}: ${invite.invite_link}`;
 
-      user.pendingInvites.push({
+      pendingInvites.push({
         categoryKey: category.key,
         channelId: category.channelId,
         expiresAt: new Date(Date.now() + 60 * 60 * 1000),
@@ -37,8 +40,13 @@ export async function handleResendInvites(bot, query) {
     }
   }
 
-  user.lastInviteSentAt = new Date();
-  await user.save();
+  const now = new Date();
+  await updateUserPendingInvites(
+    telegramId,
+    pendingInvites,
+    now,
+    user.state
+  );
 
   await bot.sendMessage(chatId, text);
   await safeAnswerCallbackQuery(bot, query);

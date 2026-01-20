@@ -1,13 +1,13 @@
-import Request from "../../models/Request.js";
-import User from "../../models/User.js";
+import { completeActiveRequest } from "../../models/Request.js";
+import { setUserState } from "../../models/User.js";
 
 export async function performOrder(bot, query) {
   const telegramId = query.from.id;
   if (query?.message?.message_id) {
     try {
-      const result = await Request.findOneAndUpdate(
-        { clientId: query.from.id, status: "active" },
-        { status: "done", markMessageId: query.message.message_id }
+      const result = await completeActiveRequest(
+        query.from.id,
+        query.message.message_id
       );
 
       if (result && result?.text && result?.category) {
@@ -19,11 +19,7 @@ export async function performOrder(bot, query) {
           }
         );
 
-        await User.findOneAndUpdate(
-          { telegramId },
-          { telegramId, state: "PERFORM_REQUEST" },
-          { upsert: true }
-        );
+        await setUserState(telegramId, "PERFORM_REQUEST");
 
         await bot.editMessageReplyMarkup(
           {

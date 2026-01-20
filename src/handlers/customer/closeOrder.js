@@ -1,14 +1,11 @@
-import Request from "../../models/Request.js";
-import User from "../../models/User.js";
+import { closeActiveRequest } from "../../models/Request.js";
+import { setUserState } from "../../models/User.js";
 
 export async function closeOrder(bot, query) {
   const telegramId = query.from.id;
 
   if (query?.message?.message_id) {
-    const result = await Request.findOneAndUpdate(
-      { clientId: query.from.id, status: "active" },
-      { status: "closed" }
-    );
+    const result = await closeActiveRequest(query.from.id);
 
     if (result && result?.text && result?.category) {
       await bot.editMessageText(
@@ -19,11 +16,7 @@ export async function closeOrder(bot, query) {
         }
       );
 
-      await User.findOneAndUpdate(
-        { telegramId },
-        { telegramId, state: "CLOSE_REQUEST" },
-        { upsert: true }
-      );
+      await setUserState(telegramId, "CLOSE_REQUEST");
 
       await bot.editMessageText(`❌ Заявка закрыта\n\n`, {
         chat_id: telegramId,

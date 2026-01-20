@@ -1,4 +1,4 @@
-import User from "../../models/User.js";
+import { updateUserStateAndCategory } from "../../models/User.js";
 import { CATEGORIES } from "../../lib/constants.js";
 
 export async function handleCategory(bot, query) {
@@ -7,10 +7,7 @@ export async function handleCategory(bot, query) {
 
   if (!CATEGORIES.find((item) => item.channelId === +category)) return;
 
-  await User.findOneAndUpdate(
-    { telegramId },
-    { selectedCategory: category, state: "WAIT_MESSAGE" }
-  );
+  await updateUserStateAndCategory(telegramId, "WAIT_MESSAGE", category);
 
   await bot.sendMessage(
     telegramId,

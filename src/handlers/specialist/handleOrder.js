@@ -1,55 +1,32 @@
-import User from "../../models/User.js";
 import { CATEGORIES } from "../../lib/constants.js";
-import Request from "../../models/Request.js";
-import Reaction from "../../models/Reaction.js";
-import Specialist from "../../models/Specialist.js";
+import {
+  findRequestByMessageAndNotExpired,
+} from "../../models/Request.js";
+import {
+  upsertSpecialistWithOrder,
+} from "../../models/Specialist.js";
+import {
+  findReaction,
+  createReaction,
+} from "../../models/Reaction.js";
 export async function handleOrder(bot, reaction) {
-  const request = await Request.findOneAndUpdate(
-    {
-      messageId: reaction?.message?.message_id,
-      status: "active",
-      expiresAt: { $gt: new Date() },
-    },
-    {
-      $setOnInsert: {
-        specialistId: reaction?.from?.id,
-        specialistName: reaction?.from?.username,
-      },
-    },
-    { upsert: true }
+  const request = await findRequestByMessageAndNotExpired(
+    String(reaction?.message?.message_id)
   );
   if (!request) return;
 
-  const specialist = await Specialist.findOneAndUpdate(
-    { telegramId: reaction.from.id },
-    {
-      $setOnInsert: {
-        telegramId: reaction.from.id,
-        username: reaction.from.username,
-      },
-      $addToSet: {
-        orders: {
-          requestId: request?._id,
-          reactedAt: new Date(),
-          requestText: request?.text,
-        },
-      },
-    },
-    { upsert: true }
+  const specialist = await upsertSpecialistWithOrder(
+    reaction.from.id,
+    reaction.from.username,
+    request.id,
+    request.text
   );
 
   if (!specialist) return;
-  const exists = await Reaction.findOne({
-    requestId: request._id,
-    specialistId: reaction?.from?.username,
-  });
+  const exists = await findReaction(request.id, reaction?.from?.username);
 
   if (exists) return;
-  await Reaction.create({
-    requestId: request._id,
-    specialistId: reaction?.from?.username,
-    reactedAt: new Date(),
-  });
+  await createReaction(request.id, reaction?.from?.username);
 
   await bot.sendMessage(
     request?.telegramId,

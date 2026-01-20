@@ -1,8 +1,8 @@
-import User from "../models/User.js";
+import { findUserByTelegramId, setUserState } from "../models/User.js";
 
 export async function handleStart(bot, msg) {
   const telegramId = msg.from.id;
-  const user = await User.findOne({ telegramId });
+  const user = await findUserByTelegramId(telegramId);
 
   if (user?.state === "WAITING_CONFIRM") {
     return bot.sendMessage(
@@ -11,11 +11,7 @@ export async function handleStart(bot, msg) {
     );
   }
 
-  await User.findOneAndUpdate(
-    { telegramId },
-    { telegramId, state: "ROLE_SELECT" },
-    { upsert: true }
-  );
+  await setUserState(telegramId, "ROLE_SELECT");
 
   await bot.sendMessage(
     msg?.chat?.id || msg?.message?.chat?.id,

@@ -1,4 +1,7 @@
-import User from "../../models/User.js";
+import {
+  findUserByTelegramId,
+  updateUserCategories,
+} from "../../models/User.js";
 import { buildSpecialistCategoriesKeyboard } from "../../utils/buildSpecialistCategoriesKeyboard.js";
 import { safeAnswerCallbackQuery } from "../../bot/bot.js";
 
@@ -6,7 +9,7 @@ export async function handleSpecialistCategory(bot, query) {
   const telegramId = query.from.id;
   const categoryKey = query.data.replace("spec_cat_", "");
 
-  const user = await User.findOne({ telegramId });
+  const user = await findUserByTelegramId(telegramId);
   if (!user) return;
 
   const selected = new Set(user.categories || []);
@@ -17,11 +20,11 @@ export async function handleSpecialistCategory(bot, query) {
     selected.add(categoryKey);
   }
 
-  user.categories = [...selected];
-  await user.save();
+  const categories = [...selected];
+  await updateUserCategories(telegramId, categories);
 
   await bot.editMessageReplyMarkup(
-    buildSpecialistCategoriesKeyboard(user.categories),
+    buildSpecialistCategoriesKeyboard(categories),
     {
       chat_id: query.message.chat.id,
       message_id: query.message.message_id,

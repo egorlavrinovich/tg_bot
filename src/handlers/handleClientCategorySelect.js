@@ -1,4 +1,7 @@
-import User from "../models/User.js";
+import {
+  findUserByTelegramId,
+  updateUserStateAndCategory,
+} from "../models/User.js";
 import { handleCategory } from "./customer/category.js";
 import { CATEGORIES } from "../lib/constants.js";
 
@@ -8,7 +11,7 @@ export async function handleClientCategorySelect(bot, query) {
 
   const categoryId = query.data.replace("cat_", "");
 
-  const user = await User.findOne({ telegramId });
+  const user = await findUserByTelegramId(telegramId);
   if (!user) return;
 
   // Проверяем: если специалист в этой категории → нельзя создавать заявку
@@ -39,9 +42,11 @@ export async function handleClientCategorySelect(bot, query) {
     message_id: query.message.message_id,
   });
 
-  user.state = "CLIENT_CREATE_REQUEST";
-  user.selectedCategory = categoryId;
-  await user.save();
+  await updateUserStateAndCategory(
+    telegramId,
+    "CLIENT_CREATE_REQUEST",
+    categoryId
+  );
 
   handleCategory(bot, query);
 }
