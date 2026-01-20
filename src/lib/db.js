@@ -10,6 +10,11 @@ if (!cached) {
 }
 
 export default async function dbConnect() {
+  if (!process.env.DB_TOKEN) {
+    console.error("DB_TOKEN env var is not set");
+    throw new Error("DB_TOKEN env var is not set");
+  }
+
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
