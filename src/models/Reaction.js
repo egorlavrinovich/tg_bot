@@ -7,22 +7,32 @@ import { sql } from "../lib/db.js";
 // reacted_at     TIMESTAMPTZ
 
 export async function findReaction(requestId, specialistId) {
-  const rows = await sql`
-    SELECT *
-    FROM reactions
-    WHERE request_id = ${requestId}
-      AND specialist_id = ${specialistId}
-    LIMIT 1
-  `;
-  return rows[0] || null;
+  try {
+    const rows = await sql`
+      SELECT *
+      FROM reactions
+      WHERE request_id = ${requestId}
+        AND specialist_id = ${specialistId}
+      LIMIT 1
+    `;
+    return rows[0] || null;
+  } catch (error) {
+    console.error("findReaction error:", error);
+    throw error;
+  }
 }
 
 export async function createReaction(requestId, specialistId) {
-  const now = new Date();
-  const rows = await sql`
-    INSERT INTO reactions (request_id, specialist_id, reacted_at)
-    VALUES (${requestId}, ${specialistId}, ${now})
-    RETURNING *
-  `;
-  return rows[0];
+  try {
+    const now = new Date();
+    const rows = await sql`
+      INSERT INTO reactions (request_id, specialist_id, reacted_at)
+      VALUES (${requestId}, ${specialistId}, ${now})
+      RETURNING *
+    `;
+    return rows[0];
+  } catch (error) {
+    console.error("createReaction error:", error);
+    throw error;
+  }
 }

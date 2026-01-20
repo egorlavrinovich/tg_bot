@@ -11,48 +11,68 @@ import { sql } from "../lib/db.js";
 // last_invite_sent_at TIMESTAMPTZ
 
 export async function findUserByTelegramId(telegramId) {
-  const rows = await sql`
-    SELECT *
-    FROM users
-    WHERE telegram_id = ${telegramId}
-    LIMIT 1
-  `;
-  return rows[0] || null;
+  try {
+    const rows = await sql`
+      SELECT *
+      FROM users
+      WHERE telegram_id = ${telegramId}
+      LIMIT 1
+    `;
+    return rows[0] || null;
+  } catch (error) {
+    console.error("findUserByTelegramId error:", error);
+    throw error;
+  }
 }
 
 export async function updateUserStateAndCategory(telegramId, state, selectedCategory) {
-  const rows = await sql`
-    INSERT INTO users (telegram_id, state, selected_category)
-    VALUES (${telegramId}, ${state}, ${selectedCategory})
-    ON CONFLICT (telegram_id) DO UPDATE SET
-      state = EXCLUDED.state,
-      selected_category = EXCLUDED.selected_category
-    RETURNING *
-  `;
-  return rows[0];
+  try {
+    const rows = await sql`
+      INSERT INTO users (telegram_id, state, selected_category)
+      VALUES (${telegramId}, ${state}, ${selectedCategory})
+      ON CONFLICT (telegram_id) DO UPDATE SET
+        state = EXCLUDED.state,
+        selected_category = EXCLUDED.selected_category
+      RETURNING *
+    `;
+    return rows[0];
+  } catch (error) {
+    console.error("updateUserStateAndCategory error:", error);
+    throw error;
+  }
 }
 
 export async function upsertUserRoleAndState(telegramId, role, state, categories = []) {
-  const rows = await sql`
-    INSERT INTO users (telegram_id, role, state, categories)
-    VALUES (${telegramId}, ${role}, ${state}, ${categories})
-    ON CONFLICT (telegram_id) DO UPDATE SET
-      role = EXCLUDED.role,
-      state = EXCLUDED.state,
-      categories = EXCLUDED.categories
-    RETURNING *
-  `;
-  return rows[0];
+  try {
+    const rows = await sql`
+      INSERT INTO users (telegram_id, role, state, categories)
+      VALUES (${telegramId}, ${role}, ${state}, ${categories})
+      ON CONFLICT (telegram_id) DO UPDATE SET
+        role = EXCLUDED.role,
+        state = EXCLUDED.state,
+        categories = EXCLUDED.categories
+      RETURNING *
+    `;
+    return rows[0];
+  } catch (error) {
+    console.error("upsertUserRoleAndState error:", error);
+    throw error;
+  }
 }
 
 export async function updateUserCategories(telegramId, categories) {
-  const rows = await sql`
-    UPDATE users
-    SET categories = ${categories}
-    WHERE telegram_id = ${telegramId}
-    RETURNING *
-  `;
-  return rows[0];
+  try {
+    const rows = await sql`
+      UPDATE users
+      SET categories = ${categories}
+      WHERE telegram_id = ${telegramId}
+      RETURNING *
+    `;
+    return rows[0];
+  } catch (error) {
+    console.error("updateUserCategories error:", error);
+    throw error;
+  }
 }
 
 export async function updateUserPendingInvites(
@@ -61,25 +81,35 @@ export async function updateUserPendingInvites(
   lastInviteSentAt,
   state
 ) {
-  const rows = await sql`
-    INSERT INTO users (telegram_id, pending_invites, last_invite_sent_at, state)
-    VALUES (${telegramId}, ${pendingInvites}, ${lastInviteSentAt}, ${state})
-    ON CONFLICT (telegram_id) DO UPDATE SET
-      pending_invites = EXCLUDED.pending_invites,
-      last_invite_sent_at = EXCLUDED.last_invite_sent_at,
-      state = EXCLUDED.state
-    RETURNING *
-  `;
-  return rows[0];
+  try {
+    const rows = await sql`
+      INSERT INTO users (telegram_id, pending_invites, last_invite_sent_at, state)
+      VALUES (${telegramId}, ${pendingInvites}, ${lastInviteSentAt}, ${state})
+      ON CONFLICT (telegram_id) DO UPDATE SET
+        pending_invites = EXCLUDED.pending_invites,
+        last_invite_sent_at = EXCLUDED.last_invite_sent_at,
+        state = EXCLUDED.state
+      RETURNING *
+    `;
+    return rows[0];
+  } catch (error) {
+    console.error("updateUserPendingInvites error:", error);
+    throw error;
+  }
 }
 
 export async function setUserState(telegramId, state) {
-  const rows = await sql`
-    INSERT INTO users (telegram_id, state)
-    VALUES (${telegramId}, ${state})
-    ON CONFLICT (telegram_id) DO UPDATE SET
-      state = EXCLUDED.state
-    RETURNING *
-  `;
-  return rows[0];
+  try {
+    const rows = await sql`
+      INSERT INTO users (telegram_id, state)
+      VALUES (${telegramId}, ${state})
+      ON CONFLICT (telegram_id) DO UPDATE SET
+        state = EXCLUDED.state
+      RETURNING *
+    `;
+    return rows[0];
+  } catch (error) {
+    console.error("setUserState error:", error);
+    throw error;
+  }
 }
