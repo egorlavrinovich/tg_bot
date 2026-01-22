@@ -4,6 +4,7 @@ import {
 } from "../models/User.js";
 import { CATEGORIES } from "../lib/constants.js";
 import { buildSpecialistCategoriesKeyboard } from "../utils/buildSpecialistCategoriesKeyboard.js";
+import { normalizeCategoryIds } from "../lib/normalizeCategoryIds.js";
 
 export async function handleRole(bot, query) {
   const telegramId = query.from.id;
@@ -19,10 +20,12 @@ export async function handleRole(bot, query) {
     );
 
   if (role === "client") {
+    const existingCategories = normalizeCategoryIds(user?.categories);
     await upsertUserRoleAndState(
       telegramId,
       user?.role ? user.role : "client",
-      "CATEGORY_SELECT"
+      "CATEGORY_SELECT",
+      existingCategories
     );
 
     await bot.sendMessage(chatId, "Выберите категорию услуги:", {

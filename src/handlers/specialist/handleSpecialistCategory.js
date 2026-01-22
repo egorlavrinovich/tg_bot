@@ -7,6 +7,7 @@ import {
   safeAnswerCallbackQuery,
   safeEditMessageReplyMarkup,
 } from "../../bot/bot.js";
+import { normalizeCategoryIds } from "../../lib/normalizeCategoryIds.js";
 
 export async function handleSpecialistCategory(bot, query) {
   const telegramId = query.from.id;
@@ -15,7 +16,7 @@ export async function handleSpecialistCategory(bot, query) {
   const user = await findUserByTelegramId(telegramId);
   if (!user) return;
 
-  const selected = new Set(user.categories || []);
+  const selected = new Set(normalizeCategoryIds(user.categories));
 
   if (selected.has(categoryKey)) {
     selected.delete(categoryKey);
@@ -24,6 +25,13 @@ export async function handleSpecialistCategory(bot, query) {
   }
 
   const categories = [...selected];
+  console.log("handleSpecialistCategory debug", {
+    telegramId,
+    categoryKey,
+    before: user.categories,
+    normalizedBefore: [...selected].filter((c) => c !== categoryKey),
+    after: categories,
+  });
   await updateUserCategories(telegramId, categories);
 
   await safeEditMessageReplyMarkup(

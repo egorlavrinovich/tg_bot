@@ -1,7 +1,8 @@
 import { CATEGORIES } from "../lib/constants.js";
+import { normalizeCategoryIds } from "../lib/normalizeCategoryIds.js";
 
 export function buildSpecialistCategoriesKeyboard(selected = []) {
-  const selectedIds = selected.map((value) => String(value));
+  const selectedIds = normalizeCategoryIds(selected);
   return {
     inline_keyboard: [
       [

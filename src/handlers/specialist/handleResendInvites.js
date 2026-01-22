@@ -4,6 +4,7 @@ import {
 } from "../../models/User.js";
 import { CATEGORIES } from "../../lib/constants.js";
 import { safeAnswerCallbackQuery } from "../../bot/bot.js";
+import { normalizeCategoryIds } from "../../lib/normalizeCategoryIds.js";
 
 export async function handleResendInvites(bot, query) {
   const telegramId = query.from.id;
@@ -12,7 +13,7 @@ export async function handleResendInvites(bot, query) {
   const user = await findUserByTelegramId(telegramId);
   if (!user || !user.categories?.length) return;
 
-  const userCategoryIds = (user.categories || []).map((value) => String(value));
+  const userCategoryIds = normalizeCategoryIds(user.categories);
   const selectedCategories = CATEGORIES.filter((c) =>
     userCategoryIds.includes(String(c.channelId))
   );
