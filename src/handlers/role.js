@@ -75,7 +75,7 @@ export async function handleRole(bot, query) {
     return;
   }
 
-  const chosenCategories = await bot.sendMessage(
+  await bot.sendMessage(
     chatId,
     "Выберите категории, в которых вы работаете.\nМожно выбрать несколько:",
     {

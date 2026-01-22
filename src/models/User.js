@@ -68,11 +68,6 @@ export async function updateUserCategories(telegramId, categories) {
       WHERE telegram_id = ${telegramId}
       RETURNING *
     `;
-    console.log("updateUserCategories debug", {
-      telegramId,
-      categories,
-      result: rows[0]?.categories,
-    });
     return rows[0];
   } catch (error) {
     console.error("updateUserCategories error:", error);

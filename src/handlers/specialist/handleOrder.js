@@ -1,4 +1,3 @@
-import { CATEGORIES } from "../../lib/constants.js";
 import {
   findRequestByMessageAndNotExpired,
 } from "../../models/Request.js";

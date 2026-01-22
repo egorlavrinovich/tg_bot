@@ -5,14 +5,6 @@ import {
 } from "../../models/Specialist.js";
 import { safeEditMessageReplyMarkup } from "../../bot/bot.js";
 
-function calcRating(orders = []) {
-  const marks = orders.map((o) => (o.mark ? Number(o.mark) : 5));
-
-  const avg = marks.reduce((a, b) => a + b, 0) / marks.length;
-
-  return Math.ceil((avg + Number.EPSILON) * 10) / 10;
-}
-
 export const reviewCandidat = async (bot, query) => {
   const telegramId = query.from.id;
 

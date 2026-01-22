@@ -25,13 +25,6 @@ export async function handleSpecialistCategory(bot, query) {
   }
 
   const categories = [...selected];
-  console.log("handleSpecialistCategory debug", {
-    telegramId,
-    categoryKey,
-    before: user.categories,
-    normalizedBefore: [...selected].filter((c) => c !== categoryKey),
-    after: categories,
-  });
   await updateUserCategories(telegramId, categories);
 
   await safeEditMessageReplyMarkup(

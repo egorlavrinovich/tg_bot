@@ -15,13 +15,6 @@ export async function handleClientCategorySelect(bot, query) {
 
   // Проверяем: если специалист в этой категории → нельзя создавать заявку
   const userCategoryIds = normalizeCategoryIds(user.categories);
-  console.log("handleClientCategorySelect debug", {
-    telegramId,
-    role: user.role,
-    rawCategories: user.categories,
-    normalized: userCategoryIds,
-    selectedCategoryId: categoryId,
-  });
   const normalizedCategoryId = String(categoryId);
   if (user.role === "specialist" && userCategoryIds.includes(normalizedCategoryId)) {
     await bot.sendMessage(
