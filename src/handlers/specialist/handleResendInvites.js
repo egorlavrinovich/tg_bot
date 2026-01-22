@@ -12,8 +12,9 @@ export async function handleResendInvites(bot, query) {
   const user = await findUserByTelegramId(telegramId);
   if (!user || !user.categories?.length) return;
 
+  const userCategoryIds = (user.categories || []).map((value) => String(value));
   const selectedCategories = CATEGORIES.filter((c) =>
-    user.categories.includes(c.channelId)
+    userCategoryIds.includes(String(c.channelId))
   );
 
   let text = "Повторные ссылки на группы:\n";

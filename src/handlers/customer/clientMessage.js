@@ -7,12 +7,12 @@ import { createRequest } from "../../models/Request.js";
 export async function handleClientMessage(bot, msg) {
   const user = await findUserByTelegramId(msg.from.id);
 
-  if (!user || user.state !== "WAIT_MESSAGE" || !user.selectedCategory) return;
+  if (!user || user.state !== "WAIT_MESSAGE" || !user.selected_category) return;
 
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   const sent = await bot.sendMessage(
-    user.selectedCategory,
+    user.selected_category,
     `Новая заявка №${msg?.message_id}:\n\n${msg.text}\n\n`,
     {
       reply_markup: {

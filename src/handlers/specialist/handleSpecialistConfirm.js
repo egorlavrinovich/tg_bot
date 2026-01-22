@@ -19,8 +19,9 @@ export async function handleSpecialistConfirm(bot, query) {
     return;
   }
 
+  const userCategoryIds = (user.categories || []).map((value) => String(value));
   const selectedCategories = CATEGORIES.filter((c) =>
-    user.categories.includes(c.channelId)
+    userCategoryIds.includes(String(c.channelId))
   );
 
   let text =

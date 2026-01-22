@@ -14,6 +14,12 @@ import { handleClientCategorySelect } from "../handlers/handleClientCategorySele
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token);
 
+// Включаем polling, если задано USE_POLLING=true
+if (process.env.USE_POLLING === "true" && !global.pollingStarted) {
+  bot.startPolling();
+  global.pollingStarted = true;
+}
+
 // Безопасный вызов answerCallbackQuery, чтобы не падать на "query is too old"
 export async function safeAnswerCallbackQuery(bot, query, options = {}) {
   if (!query?.id) return;
@@ -44,6 +50,13 @@ export async function safeEditMessageText(bot, text, options) {
       console.warn("Ignored editMessageText error:", e.response.body.description);
       return;
     }
+    if (
+      e?.response?.body?.description &&
+      e.response.body.description.includes("message to edit not found")
+    ) {
+      console.warn("Ignored editMessageText error:", e.response.body.description);
+      return;
+    }
     console.error("editMessageText error:", e);
   }
 }
@@ -58,6 +71,16 @@ export async function safeEditMessageReplyMarkup(bot, replyMarkup, options) {
       if (
         e?.response?.body?.description &&
         e.response.body.description.includes("message is not modified")
+      ) {
+        console.warn(
+          "Ignored editMessageReplyMarkup error:",
+          e.response.body.description
+        );
+        return;
+      }
+      if (
+        e?.response?.body?.description &&
+        e.response.body.description.includes("message to edit not found")
       ) {
         console.warn(
           "Ignored editMessageReplyMarkup error:",
@@ -86,19 +109,26 @@ export async function safeEditMessageReplyMarkup(bot, replyMarkup, options) {
 bot.onText(/\/start/, (msg) => handleStart(bot, msg));
 
 bot.on("callback_query", async (query) => {
-  if (!query?.data) return;
-  if (query.data.startsWith("role_")) return handleRole(bot, query);
-  if (query.data.startsWith("cat_"))
-    return handleClientCategorySelect(bot, query);
-  if (query.data.startsWith("take_order")) return handleOrder(bot, query);
-  if (query.data.startsWith("close_order")) return closeOrder(bot, query);
-  if (query.data.startsWith("menu")) return handleStart(bot, query);
-  if (query.data.startsWith("perform_order")) return performOrder(bot, query);
-  if (query.data.startsWith("review")) return reviewCandidat(bot, query);
-  if (query.data.startsWith("spec_cat_"))
-    return handleSpecialistCategory(bot, query);
-  if (query.data === "spec_confirm") return handleSpecialistConfirm(bot, query);
-  if (query.data === "resend_invites") return handleResendInvites(bot, query);
+  try {
+    if (!query?.data) return;
+    if (query.data.startsWith("role_")) return handleRole(bot, query);
+    if (query.data.startsWith("cat_"))
+      return handleClientCategorySelect(bot, query);
+    if (query.data.startsWith("take_order")) return handleOrder(bot, query);
+    if (query.data.startsWith("close_order")) return closeOrder(bot, query);
+    if (query.data.startsWith("menu")) {
+      await safeAnswerCallbackQuery(bot, query);
+      return handleStart(bot, query);
+    }
+    if (query.data.startsWith("perform_order")) return performOrder(bot, query);
+    if (query.data.startsWith("review")) return reviewCandidat(bot, query);
+    if (query.data.startsWith("spec_cat_"))
+      return handleSpecialistCategory(bot, query);
+    if (query.data === "spec_confirm") return handleSpecialistConfirm(bot, query);
+    if (query.data === "resend_invites") return handleResendInvites(bot, query);
+  } catch (error) {
+    console.error("callback_query handler error:", query?.data, error);
+  }
 });
 
 bot.on("message", (msg) => handleClientMessage(bot, msg));

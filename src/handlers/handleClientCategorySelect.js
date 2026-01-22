@@ -13,7 +13,9 @@ export async function handleClientCategorySelect(bot, query) {
   if (!user) return;
 
   // Проверяем: если специалист в этой категории → нельзя создавать заявку
-  if (user.role === "specialist" && user.categories.includes(categoryId)) {
+  const userCategoryIds = (user.categories || []).map((value) => String(value));
+  const normalizedCategoryId = String(categoryId);
+  if (user.role === "specialist" && userCategoryIds.includes(normalizedCategoryId)) {
     await bot.sendMessage(
       chatId,
       "❌ Вы не можете оставить заявку в категории, в которой вы являетесь специалистом."

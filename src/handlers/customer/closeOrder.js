@@ -14,7 +14,7 @@ export async function closeOrder(bot, query) {
         `❌ Заявка закрыта\n\n` + `${result?.text}\n\n`,
         {
           chat_id: result?.category,
-          message_id: result?.messageId,
+          message_id: result?.message_id,
         }
       );
 

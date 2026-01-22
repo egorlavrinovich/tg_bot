@@ -82,9 +82,10 @@ export async function updateUserPendingInvites(
   state
 ) {
   try {
+    const pendingInvitesJson = JSON.stringify(pendingInvites || []);
     const rows = await sql`
       INSERT INTO users (telegram_id, pending_invites, last_invite_sent_at, state)
-      VALUES (${telegramId}, ${pendingInvites}, ${lastInviteSentAt}, ${state})
+      VALUES (${telegramId}, ${pendingInvitesJson}::jsonb, ${lastInviteSentAt}, ${state})
       ON CONFLICT (telegram_id) DO UPDATE SET
         pending_invites = EXCLUDED.pending_invites,
         last_invite_sent_at = EXCLUDED.last_invite_sent_at,

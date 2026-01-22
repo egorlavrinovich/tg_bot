@@ -28,13 +28,17 @@ export async function handleOrder(bot, reaction) {
   if (exists) return;
   await createReaction(request.id, reaction?.from?.username);
 
+  const ordersCount = Number(specialist?.orders_count || 0);
+  const ratingValue = specialist?.rating ? Number(specialist.rating) : 0;
+  const formattedRating = ratingValue ? ratingValue.toFixed(1) : "Пока нет отзывов";
+
   await bot.sendMessage(
-    request?.telegramId,
+    request?.telegram_id,
     `✅ На вашу заявку откликнулся специалист:
 
 👤 @${reaction?.from?.username}
-Количество принятых заказов: ${specialist?.orders?.length}
-Рейтинг: ${specialist?.orders?.length ? specialist?.rating : "Пока нет отзывов"}
+Количество принятых заказов: ${ordersCount}
+Рейтинг: ${ordersCount ? formattedRating : "Пока нет отзывов"}
 
 Свяжитесь с ним напрямую и подтвердите заказ.`,
     {

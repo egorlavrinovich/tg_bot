@@ -20,7 +20,7 @@ export async function performOrder(bot, query) {
           `✅ Заявка выполнена\n\n` + `${result?.text}\n\n`,
           {
             chat_id: result?.category,
-            message_id: result?.messageId,
+            message_id: result?.message_id,
           }
         );
 
@@ -51,7 +51,7 @@ export async function performOrder(bot, query) {
           },
           {
             chat_id: telegramId,
-            message_id: result?.closeRequestId,
+            message_id: result?.close_request_id,
           }
         ); // редактируем сообщение на закрытие запроса
 

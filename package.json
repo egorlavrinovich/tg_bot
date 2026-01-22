@@ -6,7 +6,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "nodemon api/telegram.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.0",
