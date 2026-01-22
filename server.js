@@ -21,7 +21,7 @@ app.post("/api/telegram", telegramHandler);
 app.get("/api/ping", pingHandler);
 app.get("/", (_req, res) => res.status(200).send("OK"));
 
-if (process.env.SENTRY_DSN) {
+if (process.env.SENTRY_DSN && Sentry.Handlers?.errorHandler) {
   app.use(Sentry.Handlers.errorHandler());
 }
 
