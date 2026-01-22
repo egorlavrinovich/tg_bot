@@ -5,6 +5,7 @@ import {
 import { CATEGORIES } from "../lib/constants.js";
 import { buildSpecialistCategoriesKeyboard } from "../utils/buildSpecialistCategoriesKeyboard.js";
 import { normalizeCategoryIds } from "../lib/normalizeCategoryIds.js";
+import { safeEditMessageReplyMarkup } from "../bot/bot.js";
 
 export async function handleRole(bot, query) {
   const telegramId = query.from.id;
@@ -28,6 +29,12 @@ export async function handleRole(bot, query) {
       existingCategories
     );
 
+    await safeEditMessageReplyMarkup(
+      bot,
+      { inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]] },
+      { chat_id: chatId, message_id: query.message.message_id }
+    );
+
     await bot.sendMessage(chatId, "Выберите категорию услуги:", {
       reply_markup: {
         inline_keyboard: [
@@ -48,6 +55,12 @@ export async function handleRole(bot, query) {
     "specialist",
     "SPECIALIST_CATEGORY_SELECT",
     []
+  );
+
+  await safeEditMessageReplyMarkup(
+    bot,
+    { inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]] },
+    { chat_id: chatId, message_id: query.message.message_id }
   );
 
   const chosenCategories = await bot.sendMessage(

@@ -3,7 +3,10 @@ import {
   updateUserPendingInvites,
 } from "../../models/User.js";
 import { CATEGORIES } from "../../lib/constants.js";
-import { safeAnswerCallbackQuery } from "../../bot/bot.js";
+import {
+  safeAnswerCallbackQuery,
+  safeEditMessageReplyMarkup,
+} from "../../bot/bot.js";
 import { normalizeCategoryIds } from "../../lib/normalizeCategoryIds.js";
 
 export async function handleSpecialistConfirm(bot, query) {
@@ -70,6 +73,15 @@ export async function handleSpecialistConfirm(bot, query) {
     pendingInvites,
     new Date(),
     "AWAITING_CHANNEL_JOIN"
+  );
+
+  await safeEditMessageReplyMarkup(
+    bot,
+    { inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]] },
+    {
+      chat_id: query.message.chat.id,
+      message_id: query.message.message_id,
+    }
   );
 
   await safeAnswerCallbackQuery(bot, query);
