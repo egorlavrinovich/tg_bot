@@ -18,7 +18,6 @@ if (!globalThis.fetch) {
 
 // Улучшаем производительность и стабильность HTTP-запросов Neon
 neonConfig.fetch = globalThis.fetch;
-neonConfig.fetchConnectionCache = true;
 
 let sql = global.neonSql;
 
