@@ -50,11 +50,12 @@ export async function handleRole(bot, query) {
     return;
   }
 
+  const existingCategories = normalizeCategoryIds(user?.categories);
   await upsertUserRoleAndState(
     telegramId,
     "specialist",
     "SPECIALIST_CATEGORY_SELECT",
-    []
+    existingCategories
   );
 
   await safeEditMessageReplyMarkup(
@@ -63,11 +64,22 @@ export async function handleRole(bot, query) {
     { chat_id: chatId, message_id: query.message.message_id }
   );
 
+  if (user?.role === "specialist") {
+    await bot.sendMessage(
+      chatId,
+      "Вы уже зарегистрированы как специалист. Можно добавить или убрать категории:",
+      {
+        reply_markup: buildSpecialistCategoriesKeyboard(existingCategories),
+      }
+    );
+    return;
+  }
+
   const chosenCategories = await bot.sendMessage(
     chatId,
     "Выберите категории, в которых вы работаете.\nМожно выбрать несколько:",
     {
-      reply_markup: buildSpecialistCategoriesKeyboard([]),
+      reply_markup: buildSpecialistCategoriesKeyboard(existingCategories),
     }
   );
 }
