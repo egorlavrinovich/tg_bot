@@ -1,5 +1,4 @@
-import { neon } from "@neondatabase/serverless";
-import { fetch as undiciFetch, Headers, Request, Response } from "undici";
+import { neon, neonConfig } from "@neondatabase/serverless";
 
 // Один общий клиент Neon для всех вызовов (кэшируем в global)
 const connectionString =
@@ -11,11 +10,15 @@ if (!connectionString) {
   );
 }
 
-// На некоторых рантаймах fetch может отсутствовать/быть сломан — подстрахуемся
-if (!globalThis.fetch) globalThis.fetch = undiciFetch;
-if (!globalThis.Headers) globalThis.Headers = Headers;
-if (!globalThis.Request) globalThis.Request = Request;
-if (!globalThis.Response) globalThis.Response = Response;
+if (!globalThis.fetch) {
+  throw new Error(
+    "Global fetch is missing. Set Node.js >= 18 in Vercel runtime."
+  );
+}
+
+// Улучшаем производительность и стабильность HTTP-запросов Neon
+neonConfig.fetch = globalThis.fetch;
+neonConfig.fetchConnectionCache = true;
 
 let sql = global.neonSql;
 
