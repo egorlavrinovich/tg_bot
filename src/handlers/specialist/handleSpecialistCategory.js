@@ -3,7 +3,10 @@ import {
   updateUserCategories,
 } from "../../models/User.js";
 import { buildSpecialistCategoriesKeyboard } from "../../utils/buildSpecialistCategoriesKeyboard.js";
-import { safeAnswerCallbackQuery } from "../../bot/bot.js";
+import {
+  safeAnswerCallbackQuery,
+  safeEditMessageReplyMarkup,
+} from "../../bot/bot.js";
 
 export async function handleSpecialistCategory(bot, query) {
   const telegramId = query.from.id;
@@ -23,7 +26,8 @@ export async function handleSpecialistCategory(bot, query) {
   const categories = [...selected];
   await updateUserCategories(telegramId, categories);
 
-  await bot.editMessageReplyMarkup(
+  await safeEditMessageReplyMarkup(
+    bot,
     buildSpecialistCategoriesKeyboard(categories),
     {
       chat_id: query.message.chat.id,

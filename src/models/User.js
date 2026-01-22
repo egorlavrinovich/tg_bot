@@ -1,27 +1,5 @@
 import { sql } from "../lib/db.js";
 
-const CACHE_TTL_MS = 5_000;
-const cache = global.userCache || new Map();
-global.userCache = cache;
-
-function getCachedUser(telegramId) {
-  const entry = cache.get(telegramId);
-  if (!entry) return null;
-  if (Date.now() > entry.expiresAt) {
-    cache.delete(telegramId);
-    return null;
-  }
-  return entry.value;
-}
-
-function setCachedUser(telegramId, user) {
-  if (!user) return;
-  cache.set(telegramId, {
-    value: user,
-    expiresAt: Date.now() + CACHE_TTL_MS,
-  });
-}
-
 // Таблица users в Neon:
 // id                SERIAL PRIMARY KEY
 // telegram_id       BIGINT UNIQUE NOT NULL
@@ -34,17 +12,13 @@ function setCachedUser(telegramId, user) {
 
 export async function findUserByTelegramId(telegramId) {
   try {
-    const cached = getCachedUser(telegramId);
-    if (cached) return cached;
     const rows = await sql`
       SELECT *
       FROM users
       WHERE telegram_id = ${telegramId}
       LIMIT 1
     `;
-    const user = rows[0] || null;
-    setCachedUser(telegramId, user);
-    return user;
+    return rows[0] || null;
   } catch (error) {
     console.error("findUserByTelegramId error:", error);
     throw error;
@@ -61,9 +35,7 @@ export async function updateUserStateAndCategory(telegramId, state, selectedCate
         selected_category = EXCLUDED.selected_category
       RETURNING *
     `;
-    const user = rows[0];
-    setCachedUser(telegramId, user);
-    return user;
+    return rows[0];
   } catch (error) {
     console.error("updateUserStateAndCategory error:", error);
     throw error;
@@ -81,9 +53,7 @@ export async function upsertUserRoleAndState(telegramId, role, state, categories
         categories = EXCLUDED.categories
       RETURNING *
     `;
-    const user = rows[0];
-    setCachedUser(telegramId, user);
-    return user;
+    return rows[0];
   } catch (error) {
     console.error("upsertUserRoleAndState error:", error);
     throw error;
@@ -98,9 +68,7 @@ export async function updateUserCategories(telegramId, categories) {
       WHERE telegram_id = ${telegramId}
       RETURNING *
     `;
-    const user = rows[0];
-    setCachedUser(telegramId, user);
-    return user;
+    return rows[0];
   } catch (error) {
     console.error("updateUserCategories error:", error);
     throw error;
@@ -123,9 +91,7 @@ export async function updateUserPendingInvites(
         state = EXCLUDED.state
       RETURNING *
     `;
-    const user = rows[0];
-    setCachedUser(telegramId, user);
-    return user;
+    return rows[0];
   } catch (error) {
     console.error("updateUserPendingInvites error:", error);
     throw error;
@@ -141,9 +107,7 @@ export async function setUserState(telegramId, state) {
         state = EXCLUDED.state
       RETURNING *
     `;
-    const user = rows[0];
-    setCachedUser(telegramId, user);
-    return user;
+    return rows[0];
   } catch (error) {
     console.error("setUserState error:", error);
     throw error;
