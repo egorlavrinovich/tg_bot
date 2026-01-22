@@ -6,8 +6,10 @@ import { CATEGORIES } from "../lib/constants.js";
 import { buildSpecialistCategoriesKeyboard } from "../utils/buildSpecialistCategoriesKeyboard.js";
 import { normalizeCategoryIds } from "../lib/normalizeCategoryIds.js";
 import { safeEditMessageReplyMarkup } from "../bot/bot.js";
+import { metricIncrement, metricTiming } from "../lib/metrics.js";
 
 export async function handleRole(bot, query) {
+  const start = Date.now();
   const telegramId = query.from.id;
   const chatId = query.message.chat.id;
   const role = query.data === "role_client" ? "client" : "specialist";
@@ -28,6 +30,11 @@ export async function handleRole(bot, query) {
       "CATEGORY_SELECT",
       existingCategories
     );
+    if (!user?.role) {
+      metricIncrement("user.register.client");
+    } else {
+      metricIncrement("user.role_select.client");
+    }
 
     await safeEditMessageReplyMarkup(
       bot,
@@ -47,6 +54,7 @@ export async function handleRole(bot, query) {
       },
     });
 
+    metricTiming("handler.role_select", Date.now() - start, { role: "client" });
     return;
   }
 
@@ -57,6 +65,11 @@ export async function handleRole(bot, query) {
     "SPECIALIST_CATEGORY_SELECT",
     existingCategories
   );
+  if (user?.role !== "specialist") {
+    metricIncrement("user.register.specialist");
+  } else {
+    metricIncrement("user.role_select.specialist");
+  }
 
   await safeEditMessageReplyMarkup(
     bot,
@@ -72,6 +85,10 @@ export async function handleRole(bot, query) {
         reply_markup: buildSpecialistCategoriesKeyboard(existingCategories),
       }
     );
+    metricTiming("handler.role_select", Date.now() - start, {
+      role: "specialist",
+      existing: "true",
+    });
     return;
   }
 
@@ -82,4 +99,5 @@ export async function handleRole(bot, query) {
       reply_markup: buildSpecialistCategoriesKeyboard(existingCategories),
     }
   );
+  metricTiming("handler.role_select", Date.now() - start, { role: "specialist" });
 }

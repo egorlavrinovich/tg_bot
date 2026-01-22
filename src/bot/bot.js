@@ -1,4 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
+import * as Sentry from "@sentry/node";
 import { handleStart } from "../handlers/start.js";
 import { handleRole } from "../handlers/role.js";
 import { handleClientMessage } from "../handlers/customer/clientMessage.js";
@@ -128,6 +129,9 @@ bot.onText(/\/start/, async (msg) => {
     await handleStart(bot, msg);
   } catch (error) {
     console.error("handleStart error:", error);
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(error);
+    }
     await notifyUserError(bot, msg?.chat?.id);
   }
 });
@@ -152,6 +156,9 @@ bot.on("callback_query", async (query) => {
     if (query.data === "resend_invites") return handleResendInvites(bot, query);
   } catch (error) {
     console.error("callback_query handler error:", query?.data, error);
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(error);
+    }
     await notifyUserError(bot, query?.message?.chat?.id || query?.from?.id);
   }
 });
@@ -161,6 +168,9 @@ bot.on("message", async (msg) => {
     await handleClientMessage(bot, msg);
   } catch (error) {
     console.error("handleClientMessage error:", error);
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(error);
+    }
     await notifyUserError(bot, msg?.chat?.id);
   }
 });

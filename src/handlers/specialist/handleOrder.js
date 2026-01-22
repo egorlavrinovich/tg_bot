@@ -8,7 +8,9 @@ import {
   findReaction,
   createReaction,
 } from "../../models/Reaction.js";
+import { metricIncrement, metricTiming } from "../../lib/metrics.js";
 export async function handleOrder(bot, reaction) {
+  const start = Date.now();
   const request = await findRequestByMessageAndNotExpired(
     String(reaction?.message?.message_id)
   );
@@ -48,4 +50,6 @@ export async function handleOrder(bot, reaction) {
       },
     }
   );
+  metricIncrement("request.reaction");
+  metricTiming("handler.handle_order", Date.now() - start);
 }

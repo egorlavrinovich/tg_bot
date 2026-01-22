@@ -3,8 +3,10 @@ import {
   updateUserStateAndCategory,
 } from "../../models/User.js";
 import { createRequest } from "../../models/Request.js";
+import { metricIncrement, metricTiming } from "../../lib/metrics.js";
 
 export async function handleClientMessage(bot, msg) {
+  const start = Date.now();
   const user = await findUserByTelegramId(msg.from.id);
 
   if (!user || user.state !== "WAIT_MESSAGE" || !user.selected_category) return;
@@ -54,7 +56,11 @@ export async function handleClientMessage(bot, msg) {
       "WAITING_CONFIRM",
       null
     );
+    metricIncrement("request.create");
   } catch (error) {
     console.error("handleClientMessage error:", error);
+    metricIncrement("request.create_error");
+  } finally {
+    metricTiming("handler.client_message", Date.now() - start);
   }
 }

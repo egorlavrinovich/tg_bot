@@ -1,8 +1,10 @@
 import { closeActiveRequest } from "../../models/Request.js";
 import { setUserState } from "../../models/User.js";
 import { safeEditMessageText } from "../../bot/bot.js";
+import { metricIncrement, metricTiming } from "../../lib/metrics.js";
 
 export async function closeOrder(bot, query) {
+  const start = Date.now();
   const telegramId = query.from.id;
 
   if (query?.message?.message_id) {
@@ -34,6 +36,10 @@ export async function closeOrder(bot, query) {
           },
         }
       );
+      metricIncrement("request.close");
+    } else {
+      metricIncrement("request.close_not_found");
     }
+    metricTiming("handler.close_order", Date.now() - start);
   }
 }

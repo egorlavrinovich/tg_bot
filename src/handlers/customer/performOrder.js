@@ -4,8 +4,10 @@ import {
   safeEditMessageText,
   safeEditMessageReplyMarkup,
 } from "../../bot/bot.js";
+import { metricIncrement, metricTiming } from "../../lib/metrics.js";
 
 export async function performOrder(bot, query) {
+  const start = Date.now();
   const telegramId = query.from.id;
   if (query?.message?.message_id) {
     try {
@@ -67,6 +69,7 @@ export async function performOrder(bot, query) {
             },
           }
         );
+        metricIncrement("request.complete");
       }
     } catch (error) {
       await bot.sendMessage(telegramId, "Произошла ошибка", {
@@ -77,6 +80,9 @@ export async function performOrder(bot, query) {
           ],
         },
       });
+      metricIncrement("request.complete_error");
+    } finally {
+      metricTiming("handler.perform_order", Date.now() - start);
     }
   }
 }

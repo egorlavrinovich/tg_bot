@@ -4,8 +4,10 @@ import {
   recalcSpecialistRatingByRequestId,
 } from "../../models/Specialist.js";
 import { safeEditMessageReplyMarkup } from "../../bot/bot.js";
+import { metricIncrement, metricTiming } from "../../lib/metrics.js";
 
 export const reviewCandidat = async (bot, query) => {
+  const start = Date.now();
   const telegramId = query.from.id;
 
   const category = query.data?.split("_");
@@ -73,5 +75,7 @@ export const reviewCandidat = async (bot, query) => {
         message_id: query?.message?.message_id,
       }
     );
+    metricIncrement("review.submit");
   }
+  metricTiming("handler.review", Date.now() - start);
 };
