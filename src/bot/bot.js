@@ -49,20 +49,37 @@ export async function safeEditMessageText(bot, text, options) {
 }
 
 export async function safeEditMessageReplyMarkup(bot, replyMarkup, options) {
-  try {
-    await bot.editMessageReplyMarkup(replyMarkup, options);
-  } catch (e) {
-    if (
-      e?.response?.body?.description &&
-      e.response.body.description.includes("message is not modified")
-    ) {
-      console.warn(
-        "Ignored editMessageReplyMarkup error:",
-        e.response.body.description
-      );
+  const maxAttempts = 2;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      await bot.editMessageReplyMarkup(replyMarkup, options);
+      return;
+    } catch (e) {
+      if (
+        e?.response?.body?.description &&
+        e.response.body.description.includes("message is not modified")
+      ) {
+        console.warn(
+          "Ignored editMessageReplyMarkup error:",
+          e.response.body.description
+        );
+        return;
+      }
+
+      const isReset =
+        e?.code === "ECONNRESET" ||
+        e?.cause?.code === "ECONNRESET" ||
+        String(e?.message || "").includes("socket hang up");
+
+      if (isReset && attempt < maxAttempts) {
+        const delayMs = 250 * attempt;
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        continue;
+      }
+
+      console.error("editMessageReplyMarkup error:", e);
       return;
     }
-    console.error("editMessageReplyMarkup error:", e);
   }
 }
 
