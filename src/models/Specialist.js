@@ -1,4 +1,5 @@
 import { sql } from "../lib/db.js";
+import { logError } from "../lib/logger.js";
 
 // Таблица specialists:
 // id             SERIAL PRIMARY KEY
@@ -60,7 +61,7 @@ export async function upsertSpecialistWithOrder(
 
     return rows[0] || null;
   } catch (error) {
-    console.error("upsertSpecialistWithOrder error:", error);
+    logError("upsertSpecialistWithOrder error", error);
     throw error;
   }
 }
@@ -75,7 +76,7 @@ export async function findSpecialistByTelegramId(telegramId) {
     `;
     return rows[0] || null;
   } catch (error) {
-    console.error("findSpecialistByTelegramId error:", error);
+    logError("findSpecialistByTelegramId error", error);
     throw error;
   }
 }
@@ -90,7 +91,7 @@ export async function updateSpecialistCategories(telegramId, categories) {
     `;
     return rows[0];
   } catch (error) {
-    console.error("updateSpecialistCategories error:", error);
+    logError("updateSpecialistCategories error", error);
     throw error;
   }
 }
@@ -105,7 +106,7 @@ export async function setSpecialistOrderMarkByRequestId(requestId, mark) {
     `;
     return rows[0] || null;
   } catch (error) {
-    console.error("setSpecialistOrderMarkByRequestId error:", error);
+    logError("setSpecialistOrderMarkByRequestId error", error);
     throw error;
   }
 }
@@ -148,7 +149,7 @@ export async function recalcSpecialistRatingByRequestId(requestId) {
 
     return rows[0] || null;
   } catch (error) {
-    console.error("recalcSpecialistRatingByRequestId error:", error);
+    logError("recalcSpecialistRatingByRequestId error", error);
     throw error;
   }
 }

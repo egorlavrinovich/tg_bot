@@ -19,12 +19,6 @@ if (process.env.SENTRY_DSN) {
     enableLogs: true,
   });
 
-  if (Sentry?.logger?.info) {
-    // тестовый лог, должен попасть в Sentry Logs
-    Sentry.logger.info("Sentry log pipeline enabled", { source: "server" });
-  } else {
-    Sentry.captureMessage("Sentry log pipeline enabled");
-  }
 }
 
 const app = express();

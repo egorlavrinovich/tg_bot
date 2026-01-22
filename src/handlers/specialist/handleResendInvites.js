@@ -4,6 +4,7 @@ import {
 } from "../../models/User.js";
 import { CATEGORIES } from "../../lib/constants.js";
 import { safeAnswerCallbackQuery } from "../../bot/bot.js";
+import { logError } from "../../lib/logger.js";
 import { normalizeCategoryIds } from "../../lib/normalizeCategoryIds.js";
 
 export async function handleResendInvites(bot, query) {
@@ -38,11 +39,9 @@ export async function handleResendInvites(bot, query) {
         expiresAt: new Date(Date.now() + 60 * 60 * 1000),
       });
     } catch (error) {
-      console.error(
-        "handleResendInvites: error creating invite link",
+      logError("handleResendInvites: error creating invite link", error, {
         category,
-        error
-      );
+      });
       text += `\n${category.title}: ❌ ошибка`;
     }
   }

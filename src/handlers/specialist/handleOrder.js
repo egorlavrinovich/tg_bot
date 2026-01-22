@@ -50,6 +50,7 @@ export async function handleOrder(bot, reaction) {
       },
     }
   );
+  metricIncrement("request.reaction_success");
   metricIncrement("request.reaction");
   metricTiming("handler.handle_order", Date.now() - start);
 }

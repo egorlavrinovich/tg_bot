@@ -1,4 +1,5 @@
 import { sql } from "../lib/db.js";
+import { logError } from "../lib/logger.js";
 
 // Таблица users в Neon:
 // id                SERIAL PRIMARY KEY
@@ -20,7 +21,7 @@ export async function findUserByTelegramId(telegramId) {
     `;
     return rows[0] || null;
   } catch (error) {
-    console.error("findUserByTelegramId error:", error);
+    logError("findUserByTelegramId error", error);
     throw error;
   }
 }
@@ -37,7 +38,7 @@ export async function updateUserStateAndCategory(telegramId, state, selectedCate
     `;
     return rows[0];
   } catch (error) {
-    console.error("updateUserStateAndCategory error:", error);
+    logError("updateUserStateAndCategory error", error);
     throw error;
   }
 }
@@ -55,7 +56,7 @@ export async function upsertUserRoleAndState(telegramId, role, state, categories
     `;
     return rows[0];
   } catch (error) {
-    console.error("upsertUserRoleAndState error:", error);
+    logError("upsertUserRoleAndState error", error);
     throw error;
   }
 }
@@ -70,7 +71,7 @@ export async function updateUserCategories(telegramId, categories) {
     `;
     return rows[0];
   } catch (error) {
-    console.error("updateUserCategories error:", error);
+    logError("updateUserCategories error", error);
     throw error;
   }
 }
@@ -94,7 +95,7 @@ export async function updateUserPendingInvites(
     `;
     return rows[0];
   } catch (error) {
-    console.error("updateUserPendingInvites error:", error);
+    logError("updateUserPendingInvites error", error);
     throw error;
   }
 }
@@ -110,7 +111,7 @@ export async function setUserState(telegramId, state) {
     `;
     return rows[0];
   } catch (error) {
-    console.error("setUserState error:", error);
+    logError("setUserState error", error);
     throw error;
   }
 }

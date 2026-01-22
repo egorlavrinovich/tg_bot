@@ -1,4 +1,5 @@
 import { sql } from "../lib/db.js";
+import { logError } from "../lib/logger.js";
 
 // Таблица requests в Neon:
 // id                 SERIAL PRIMARY KEY
@@ -66,7 +67,7 @@ export async function createRequest(data) {
 
     return rows[0];
   } catch (error) {
-    console.error("createRequest error:", error);
+    logError("createRequest error", error);
     throw error;
   }
 }
@@ -87,7 +88,7 @@ export async function closeActiveRequest(telegramId) {
     `;
     return rows[0] || null;
   } catch (error) {
-    console.error("closeActiveRequest error:", error);
+    logError("closeActiveRequest error", error);
     throw error;
   }
 }
@@ -109,7 +110,7 @@ export async function completeActiveRequest(telegramId, markMessageId) {
     `;
     return rows[0] || null;
   } catch (error) {
-    console.error("completeActiveRequest error:", error);
+    logError("completeActiveRequest error", error);
     throw error;
   }
 }
@@ -128,7 +129,7 @@ export async function findRequestByMessageAndNotExpired(messageId) {
     `;
     return rows[0] || null;
   } catch (error) {
-    console.error("findRequestByMessageAndNotExpired error:", error);
+    logError("findRequestByMessageAndNotExpired error", error);
     throw error;
   }
 }
@@ -143,7 +144,7 @@ export async function setRequestMarkByMarkMessageId(markMessageId, mark) {
     `;
     return rows[0] || null;
   } catch (error) {
-    console.error("setRequestMarkByMarkMessageId error:", error);
+    logError("setRequestMarkByMarkMessageId error", error);
     throw error;
   }
 }

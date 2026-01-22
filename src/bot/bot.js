@@ -1,5 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import * as Sentry from "@sentry/node";
+import { logError, logWarn } from "../lib/logger.js";
 import { handleStart } from "../handlers/start.js";
 import { handleRole } from "../handlers/role.js";
 import { handleClientMessage } from "../handlers/customer/clientMessage.js";
@@ -32,10 +33,12 @@ export async function safeAnswerCallbackQuery(bot, query, options = {}) {
       e?.response?.body?.description &&
       e.response.body.description.includes("query is too old")
     ) {
-      console.warn("Ignored old callback_query:", e.response.body.description);
+      logWarn("Ignored old callback_query", {
+        description: e.response.body.description,
+      });
       return;
     }
-    console.error("answerCallbackQuery error:", e);
+    logError("answerCallbackQuery error", e);
   }
 }
 
@@ -48,17 +51,21 @@ export async function safeEditMessageText(bot, text, options) {
       e?.response?.body?.description &&
       e.response.body.description.includes("message is not modified")
     ) {
-      console.warn("Ignored editMessageText error:", e.response.body.description);
+      logWarn("Ignored editMessageText error", {
+        description: e.response.body.description,
+      });
       return;
     }
     if (
       e?.response?.body?.description &&
       e.response.body.description.includes("message to edit not found")
     ) {
-      console.warn("Ignored editMessageText error:", e.response.body.description);
+      logWarn("Ignored editMessageText error", {
+        description: e.response.body.description,
+      });
       return;
     }
-    console.error("editMessageText error:", e);
+    logError("editMessageText error", e);
   }
 }
 
@@ -73,20 +80,18 @@ export async function safeEditMessageReplyMarkup(bot, replyMarkup, options) {
         e?.response?.body?.description &&
         e.response.body.description.includes("message is not modified")
       ) {
-        console.warn(
-          "Ignored editMessageReplyMarkup error:",
-          e.response.body.description
-        );
+        logWarn("Ignored editMessageReplyMarkup error", {
+          description: e.response.body.description,
+        });
         return;
       }
       if (
         e?.response?.body?.description &&
         e.response.body.description.includes("message to edit not found")
       ) {
-        console.warn(
-          "Ignored editMessageReplyMarkup error:",
-          e.response.body.description
-        );
+        logWarn("Ignored editMessageReplyMarkup error", {
+          description: e.response.body.description,
+        });
         return;
       }
 
@@ -101,7 +106,7 @@ export async function safeEditMessageReplyMarkup(bot, replyMarkup, options) {
         continue;
       }
 
-      console.error("editMessageReplyMarkup error:", e);
+      logError("editMessageReplyMarkup error", e);
       return;
     }
   }
@@ -120,7 +125,7 @@ export async function notifyUserError(bot, chatId) {
       }
     );
   } catch (e) {
-    console.error("notifyUserError failed:", e);
+    logError("notifyUserError failed", e);
   }
 }
 
@@ -128,7 +133,7 @@ bot.onText(/\/start/, async (msg) => {
   try {
     await handleStart(bot, msg);
   } catch (error) {
-    console.error("handleStart error:", error);
+    logError("handleStart error", error);
     if (process.env.SENTRY_DSN) {
       Sentry.captureException(error);
     }
@@ -155,7 +160,7 @@ bot.on("callback_query", async (query) => {
     if (query.data === "spec_confirm") return handleSpecialistConfirm(bot, query);
     if (query.data === "resend_invites") return handleResendInvites(bot, query);
   } catch (error) {
-    console.error("callback_query handler error:", query?.data, error);
+    logError("callback_query handler error", error, { data: query?.data });
     if (process.env.SENTRY_DSN) {
       Sentry.captureException(error);
     }
@@ -167,7 +172,7 @@ bot.on("message", async (msg) => {
   try {
     await handleClientMessage(bot, msg);
   } catch (error) {
-    console.error("handleClientMessage error:", error);
+    logError("handleClientMessage error", error);
     if (process.env.SENTRY_DSN) {
       Sentry.captureException(error);
     }

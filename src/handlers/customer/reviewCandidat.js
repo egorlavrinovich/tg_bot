@@ -75,6 +75,7 @@ export const reviewCandidat = async (bot, query) => {
         message_id: query?.message?.message_id,
       }
     );
+    metricIncrement("review.submit_success");
     metricIncrement("review.submit");
   }
   metricTiming("handler.review", Date.now() - start);

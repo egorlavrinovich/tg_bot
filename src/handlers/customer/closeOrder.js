@@ -36,6 +36,7 @@ export async function closeOrder(bot, query) {
           },
         }
       );
+      metricIncrement("request.close_success");
       metricIncrement("request.close");
     } else {
       metricIncrement("request.close_not_found");

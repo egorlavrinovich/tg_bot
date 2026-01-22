@@ -4,6 +4,7 @@ import {
 } from "../../models/User.js";
 import { createRequest } from "../../models/Request.js";
 import { metricIncrement, metricTiming } from "../../lib/metrics.js";
+import { logError } from "../../lib/logger.js";
 
 export async function handleClientMessage(bot, msg) {
   const start = Date.now();
@@ -56,9 +57,10 @@ export async function handleClientMessage(bot, msg) {
       "WAITING_CONFIRM",
       null
     );
+    metricIncrement("request.create_success");
     metricIncrement("request.create");
   } catch (error) {
-    console.error("handleClientMessage error:", error);
+    logError("handleClientMessage error", error);
     metricIncrement("request.create_error");
   } finally {
     metricTiming("handler.client_message", Date.now() - start);

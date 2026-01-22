@@ -1,4 +1,5 @@
 import { sql } from "../lib/db.js";
+import { logError } from "../lib/logger.js";
 
 // Таблица reactions:
 // id             SERIAL PRIMARY KEY
@@ -17,7 +18,7 @@ export async function findReaction(requestId, specialistId) {
     `;
     return rows[0] || null;
   } catch (error) {
-    console.error("findReaction error:", error);
+    logError("findReaction error", error);
     throw error;
   }
 }
@@ -32,7 +33,7 @@ export async function createReaction(requestId, specialistId) {
     `;
     return rows[0];
   } catch (error) {
-    console.error("createReaction error:", error);
+    logError("createReaction error", error);
     throw error;
   }
 }

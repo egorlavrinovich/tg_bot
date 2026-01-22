@@ -69,6 +69,7 @@ export async function performOrder(bot, query) {
             },
           }
         );
+        metricIncrement("request.complete_success");
         metricIncrement("request.complete");
       }
     } catch (error) {
