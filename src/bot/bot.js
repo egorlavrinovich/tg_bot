@@ -106,7 +106,31 @@ export async function safeEditMessageReplyMarkup(bot, replyMarkup, options) {
   }
 }
 
-bot.onText(/\/start/, (msg) => handleStart(bot, msg));
+export async function notifyUserError(bot, chatId) {
+  if (!chatId) return;
+  try {
+    await bot.sendMessage(
+      chatId,
+      "Произошла ошибка. Попробуйте ещё раз или вернитесь в главное меню.",
+      {
+        reply_markup: {
+          inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]],
+        },
+      }
+    );
+  } catch (e) {
+    console.error("notifyUserError failed:", e);
+  }
+}
+
+bot.onText(/\/start/, async (msg) => {
+  try {
+    await handleStart(bot, msg);
+  } catch (error) {
+    console.error("handleStart error:", error);
+    await notifyUserError(bot, msg?.chat?.id);
+  }
+});
 
 bot.on("callback_query", async (query) => {
   try {
@@ -128,9 +152,17 @@ bot.on("callback_query", async (query) => {
     if (query.data === "resend_invites") return handleResendInvites(bot, query);
   } catch (error) {
     console.error("callback_query handler error:", query?.data, error);
+    await notifyUserError(bot, query?.message?.chat?.id || query?.from?.id);
   }
 });
 
-bot.on("message", (msg) => handleClientMessage(bot, msg));
+bot.on("message", async (msg) => {
+  try {
+    await handleClientMessage(bot, msg);
+  } catch (error) {
+    console.error("handleClientMessage error:", error);
+    await notifyUserError(bot, msg?.chat?.id);
+  }
+});
 
 export default bot;
