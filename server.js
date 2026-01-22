@@ -5,10 +5,22 @@ import * as Sentry from "@sentry/node";
 dotenv.config();
 
 if (process.env.SENTRY_DSN) {
+  const integrations = [];
+  if (typeof Sentry.consoleLoggingIntegration === "function") {
+    integrations.push(
+      Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] })
+    );
+  }
+
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV || "development",
+    integrations,
+    enableLogs: true,
   });
+
+  // тестовый лог, должен попасть в Sentry Logs
+  Sentry.logger.info("Sentry log pipeline enabled", { source: "server" });
 }
 
 const app = express();
