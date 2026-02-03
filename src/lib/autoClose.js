@@ -39,9 +39,8 @@ export function cancelAutoClose(requestId) {
   timers.delete(requestId);
 }
 
-export function scheduleAutoClose(requestId, bot) {
+function scheduleTimers(requestId, bot, reminderMs, autoCloseMs, isRepeat = false) {
   cancelAutoClose(requestId);
-  const { firstReminderMs, autoCloseMs } = getConfig();
 
   const reminder = setTimeout(async () => {
     try {
@@ -56,17 +55,21 @@ export function scheduleAutoClose(requestId, bot) {
             inline_keyboard: [
               [
                 { text: "Нет", callback_data: `auto_no_${requestId}` },
-                { text: "Закрыть заявку", callback_data: `auto_close_${requestId}` },
                 { text: "Да", callback_data: `auto_done_${requestId}` },
               ],
+              [{ text: "Закрыть заявку", callback_data: `auto_close_${requestId}` }],
             ],
           },
         }
       );
     } catch (error) {
-      logError("scheduleAutoClose reminder error", error, { requestId });
+      logError(
+        isRepeat ? "repeatReminder error" : "firstReminder error",
+        error,
+        { requestId }
+      );
     }
-  }, firstReminderMs);
+  }, reminderMs);
 
   const autoClose = setTimeout(async () => {
     try {
@@ -107,82 +110,22 @@ export function scheduleAutoClose(requestId, bot) {
   setTimer(requestId, "autoClose", autoClose);
 }
 
+export function scheduleAutoClose(requestId, bot) {
+  const { firstReminderMs, autoCloseMs } = getConfig();
+  scheduleTimers(requestId, bot, firstReminderMs, autoCloseMs, false);
+}
+
 export async function handleAutoResponse(action, requestId, bot) {
   const request = await findRequestById(requestId);
   if (!request || request.status !== "active") return;
 
   if (action === "no") {
     const { repeatReminderMs, autoCloseMs } = getConfig();
-    // сбрасываем предыдущие таймеры и ставим новые
-    cancelAutoClose(requestId);
-
     await bot.sendMessage(
       request.telegram_id,
       "Хорошо, напомню вам позже."
     );
-    const reminder = setTimeout(async () => {
-      try {
-        const latest = await findRequestById(requestId);
-        if (!latest || latest.status !== "active") return;
-        await bot.sendMessage(
-          latest.telegram_id,
-          "Вы нашли подходящего специалиста?",
-          {
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: "Нет", callback_data: `auto_no_${requestId}` },
-                  { text: "Да", callback_data: `auto_done_${requestId}` },
-                ],
-                [
-                  { text: "Закрыть заявку", callback_data: `auto_close_${requestId}` },
-                ]
-              ],
-            },
-          }
-        );
-      } catch (error) {
-        logError("handleAutoResponse repeat reminder error", error, { requestId });
-      }
-    }, repeatReminderMs);
-    setTimer(requestId, "reminder", reminder);
-
-    const autoClose = setTimeout(async () => {
-      try {
-        const request = await closeRequestById(requestId);
-        if (!request) return;
-        if (request?.category && request?.channel_message_id) {
-          await safeEditMessageText(
-            bot,
-            `❌ Заявка закрыта\n\n${request?.text || ""}\n\n`,
-            {
-              chat_id: request.category,
-              message_id: request.channel_message_id,
-            }
-          );
-        }
-        await bot.sendMessage(
-          request.telegram_id,
-          "Заявка автоматически закрыта, так как вы не ответили."
-        );
-        await setUserState(request.telegram_id, "ROLE_SELECT");
-        await bot.sendMessage(
-          request.telegram_id,
-          "Вы можете создать новую заявку.",
-          {
-            reply_markup: {
-              inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]],
-            },
-          }
-        );
-      } catch (error) {
-        logError("handleAutoResponse autoClose error", error, { requestId });
-      } finally {
-        cancelAutoClose(requestId);
-      }
-    }, autoCloseMs);
-
-    setTimer(requestId, "autoClose", autoClose);
+    scheduleTimers(requestId, bot, repeatReminderMs, autoCloseMs, true);
     return;
   }
 
