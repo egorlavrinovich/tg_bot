@@ -1,5 +1,6 @@
 import { findRequestById, closeRequestById, completeRequestById } from "../models/Request.js";
 import { logWarn, logError } from "./logger.js";
+import { safeEditMessageText } from "../bot/bot.js";
 
 const timers = global.requestTimers || new Map();
 global.requestTimers = timers;
@@ -65,6 +66,16 @@ export function scheduleAutoClose(requestId, bot) {
     try {
       const request = await closeRequestById(requestId);
       if (!request) return;
+      if (request?.category && request?.channel_message_id) {
+        await safeEditMessageText(
+          bot,
+          `❌ Заявка закрыта\n\n${request?.text || ""}\n\n`,
+          {
+            chat_id: request.category,
+            message_id: request.channel_message_id,
+          }
+        );
+      }
       await bot.sendMessage(
         request.telegram_id,
         "Заявка автоматически закрыта, так как вы не ответили."
@@ -116,6 +127,16 @@ export async function handleAutoResponse(action, requestId, bot) {
   if (action === "close") {
     const closed = await closeRequestById(requestId);
     if (closed) {
+      if (closed?.category && closed?.channel_message_id) {
+        await safeEditMessageText(
+          bot,
+          `❌ Заявка закрыта\n\n${closed?.text || ""}\n\n`,
+          {
+            chat_id: closed.category,
+            message_id: closed.channel_message_id,
+          }
+        );
+      }
       await bot.sendMessage(
         closed.telegram_id,
         "Заявка закрыта. Если нужно — можете создать новую."
@@ -128,6 +149,16 @@ export async function handleAutoResponse(action, requestId, bot) {
   if (action === "done") {
     const done = await completeRequestById(requestId);
     if (done) {
+      if (done?.category && done?.channel_message_id) {
+        await safeEditMessageText(
+          bot,
+          `✅ Заявка выполнена\n\n${done?.text || ""}\n\n`,
+          {
+            chat_id: done.category,
+            message_id: done.channel_message_id,
+          }
+        );
+      }
       await bot.sendMessage(
         done.telegram_id,
         "Отлично! Отмечаю заявку как выполненную."
