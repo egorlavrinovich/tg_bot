@@ -2,6 +2,7 @@ import { closeActiveRequest } from "../../models/Request.js";
 import { setUserState } from "../../models/User.js";
 import { safeEditMessageText } from "../../bot/bot.js";
 import { metricIncrement, metricTiming } from "../../lib/metrics.js";
+import { cancelAutoClose } from "../../lib/autoClose.js";
 
 export async function closeOrder(bot, query) {
   const start = Date.now();
@@ -38,6 +39,7 @@ export async function closeOrder(bot, query) {
       );
       metricIncrement("request.close_success");
       metricIncrement("request.close");
+      if (result?.id) cancelAutoClose(result.id);
     } else {
       metricIncrement("request.close_not_found");
     }

@@ -5,6 +5,7 @@ import {
   safeEditMessageReplyMarkup,
 } from "../../bot/bot.js";
 import { metricIncrement, metricTiming } from "../../lib/metrics.js";
+import { cancelAutoClose } from "../../lib/autoClose.js";
 
 export async function performOrder(bot, query) {
   const start = Date.now();
@@ -71,6 +72,7 @@ export async function performOrder(bot, query) {
         );
         metricIncrement("request.complete_success");
         metricIncrement("request.complete");
+        if (result?.id) cancelAutoClose(result.id);
       }
     } catch (error) {
       await bot.sendMessage(telegramId, "Произошла ошибка", {

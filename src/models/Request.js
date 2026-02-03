@@ -148,3 +148,50 @@ export async function setRequestMarkByMarkMessageId(markMessageId, mark) {
     throw error;
   }
 }
+
+export async function findRequestById(requestId) {
+  try {
+    const rows = await sql`
+      SELECT *
+      FROM requests
+      WHERE id = ${requestId}
+      LIMIT 1
+    `;
+    return rows[0] || null;
+  } catch (error) {
+    logError("findRequestById error", error);
+    throw error;
+  }
+}
+
+export async function closeRequestById(requestId) {
+  try {
+    const rows = await sql`
+      UPDATE requests
+      SET status = 'closed'
+      WHERE id = ${requestId}
+        AND status = 'active'
+      RETURNING *
+    `;
+    return rows[0] || null;
+  } catch (error) {
+    logError("closeRequestById error", error);
+    throw error;
+  }
+}
+
+export async function completeRequestById(requestId) {
+  try {
+    const rows = await sql`
+      UPDATE requests
+      SET status = 'done'
+      WHERE id = ${requestId}
+        AND status = 'active'
+      RETURNING *
+    `;
+    return rows[0] || null;
+  } catch (error) {
+    logError("completeRequestById error", error);
+    throw error;
+  }
+}

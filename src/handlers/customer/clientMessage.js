@@ -5,6 +5,7 @@ import {
 import { createRequest } from "../../models/Request.js";
 import { metricIncrement, metricTiming } from "../../lib/metrics.js";
 import { logError } from "../../lib/logger.js";
+import { scheduleAutoClose } from "../../lib/autoClose.js";
 
 export async function handleClientMessage(bot, msg) {
   const start = Date.now();
@@ -38,7 +39,7 @@ export async function handleClientMessage(bot, msg) {
         },
       }
     );
-    await createRequest({
+    const createdRequest = await createRequest({
       clientId: msg.from.id,
       category: user.selected_category,
       text: msg.text,
@@ -52,6 +53,9 @@ export async function handleClientMessage(bot, msg) {
       markMessageId: null,
       specialistId: null,
     });
+    if (createdRequest?.id) {
+      scheduleAutoClose(createdRequest.id, bot);
+    }
     await updateUserStateAndCategory(
       msg.from.id,
       "WAITING_CONFIRM",

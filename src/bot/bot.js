@@ -1,6 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import * as Sentry from "@sentry/node";
 import { logError, logWarn } from "../lib/logger.js";
+import { handleAutoResponse } from "../lib/autoClose.js";
 import { handleStart } from "../handlers/start.js";
 import { handleRole } from "../handlers/role.js";
 import { handleClientMessage } from "../handlers/customer/clientMessage.js";
@@ -154,6 +155,27 @@ bot.on("callback_query", async (query) => {
       return handleStart(bot, query);
     }
     if (query.data.startsWith("perform_order")) return performOrder(bot, query);
+    if (query.data.startsWith("auto_no_")) {
+      const requestId = Number(query.data.replace("auto_no_", ""));
+      if (Number.isFinite(requestId)) {
+        await handleAutoResponse("no", requestId, bot);
+      }
+      return;
+    }
+    if (query.data.startsWith("auto_close_")) {
+      const requestId = Number(query.data.replace("auto_close_", ""));
+      if (Number.isFinite(requestId)) {
+        await handleAutoResponse("close", requestId, bot);
+      }
+      return;
+    }
+    if (query.data.startsWith("auto_done_")) {
+      const requestId = Number(query.data.replace("auto_done_", ""));
+      if (Number.isFinite(requestId)) {
+        await handleAutoResponse("done", requestId, bot);
+      }
+      return;
+    }
     if (query.data.startsWith("review")) return reviewCandidat(bot, query);
     if (query.data.startsWith("spec_cat_"))
       return handleSpecialistCategory(bot, query);
