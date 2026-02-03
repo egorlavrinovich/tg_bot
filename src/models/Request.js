@@ -195,3 +195,19 @@ export async function completeRequestById(requestId) {
     throw error;
   }
 }
+
+export async function closeExpiredRequests(now = new Date()) {
+  try {
+    const rows = await sql`
+      UPDATE requests
+      SET status = 'closed'
+      WHERE status = 'active'
+        AND expires_at < ${now}
+      RETURNING *
+    `;
+    return rows || [];
+  } catch (error) {
+    logError("closeExpiredRequests error", error);
+    throw error;
+  }
+}

@@ -1,4 +1,9 @@
-import { findRequestById, closeRequestById, completeRequestById } from "../models/Request.js";
+import {
+  findRequestById,
+  closeRequestById,
+  completeRequestById,
+  closeExpiredRequests,
+} from "../models/Request.js";
 import { setUserState } from "../models/User.js";
 import { logWarn, logError } from "./logger.js";
 import { safeEditMessageText } from "../bot/bot.js";
@@ -242,5 +247,47 @@ export async function handleAutoResponse(action, requestId, bot) {
       );
     }
     cancelAutoClose(requestId);
+  }
+}
+
+export async function sweepExpiredRequests(bot) {
+  try {
+    const closed = await closeExpiredRequests();
+    if (!closed.length) return;
+
+    for (const request of closed) {
+      try {
+        if (request?.category && request?.channel_message_id) {
+          await safeEditMessageText(
+            bot,
+            `❌ Заявка закрыта\n\n${request?.text || ""}\n\n`,
+            {
+              chat_id: request.category,
+              message_id: request.channel_message_id,
+            }
+          );
+        }
+        await bot.sendMessage(
+          request.telegram_id,
+          "Заявка автоматически закрыта, так как вы не ответили."
+        );
+        await setUserState(request.telegram_id, "ROLE_SELECT");
+        await bot.sendMessage(
+          request.telegram_id,
+          "Вы можете создать новую заявку.",
+          {
+            reply_markup: {
+              inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]],
+            },
+          }
+        );
+      } catch (error) {
+        logError("sweepExpiredRequests notify error", error, {
+          requestId: request.id,
+        });
+      }
+    }
+  } catch (error) {
+    logError("sweepExpiredRequests error", error);
   }
 }

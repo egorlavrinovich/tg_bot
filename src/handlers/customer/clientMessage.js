@@ -13,7 +13,8 @@ export async function handleClientMessage(bot, msg) {
 
   if (!user || user.state !== "WAIT_MESSAGE" || !user.selected_category) return;
 
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  const autoCloseMinutes = Number(process.env.AUTO_CLOSE_MINUTES) || 60;
+  const expiresAt = new Date(Date.now() + autoCloseMinutes * 60 * 1000);
 
   const sent = await bot.sendMessage(
     user.selected_category,
