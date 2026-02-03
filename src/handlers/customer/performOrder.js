@@ -86,7 +86,6 @@ export async function performOrder(bot, query) {
             specialistId,
             `Клиент подтвердил вашу заявку.\n\nКонтакты клиента:\n` +
               (clientUsername ? `👤 @${clientUsername}\n` : "") +
-              `ID: ${telegramId}`,
             {
               reply_markup: {
                 inline_keyboard: [

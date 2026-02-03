@@ -17,7 +17,8 @@ export function metricIncrement(name, value = 1, tags = {}) {
 export function metricTiming(name, milliseconds, tags = {}) {
   if (!metricsEnabled()) return;
   try {
-    Sentry.metrics.timing(name, milliseconds, { tags });
+    // API в SDK ожидает unit строкой, затем tags
+    Sentry.metrics.timing(name, milliseconds, "millisecond", tags);
   } catch (error) {
     logWarn("metricTiming failed", { name, error });
   }
