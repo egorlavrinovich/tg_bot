@@ -54,8 +54,8 @@ function scheduleTimers(requestId, bot, reminderMs, autoCloseMs, isRepeat = fals
           reply_markup: {
             inline_keyboard: [
               [
-                { text: "Нет", callback_data: `auto_no_${requestId}` },
                 { text: "Да", callback_data: `auto_done_${requestId}` },
+                { text: "Нет", callback_data: `auto_no_${requestId}` }
               ],
               [{ text: "Закрыть заявку", callback_data: `auto_close_${requestId}` }],
             ],
@@ -87,7 +87,7 @@ function scheduleTimers(requestId, bot, reminderMs, autoCloseMs, isRepeat = fals
       }
       await bot.sendMessage(
         request.telegram_id,
-        "Заявка автоматически закрыта, так как вы не ответили."
+        "❌ Заявка автоматически закрыта, так как вы не ответили."
       );
       await setUserState(request.telegram_id, "ROLE_SELECT");
       await bot.sendMessage(
@@ -144,7 +144,7 @@ export async function handleAutoResponse(action, requestId, bot) {
       }
       await bot.sendMessage(
         closed.telegram_id,
-        "Заявка закрыта. Если нужно — можете создать новую."
+        "❌ Заявка закрыта. Если нужно — можете создать новую."
       );
       await setUserState(closed.telegram_id, "ROLE_SELECT");
       await bot.sendMessage(
@@ -212,7 +212,7 @@ export async function sweepExpiredRequests(bot) {
         }
         await bot.sendMessage(
           request.telegram_id,
-          "Заявка автоматически закрыта, так как вы не ответили."
+          "❌ Заявка автоматически закрыта, так как вы не ответили."
         );
         await setUserState(request.telegram_id, "ROLE_SELECT");
         await bot.sendMessage(

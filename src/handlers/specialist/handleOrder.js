@@ -46,6 +46,14 @@ export async function handleOrder(bot, reaction) {
       reply_markup: {
         inline_keyboard: [
           [{ text: "✅ Подтвердить выбор", callback_data: `perform_order` }],
+          [
+            {
+              text: "💬 Связаться",
+              url: reaction?.from?.username
+                ? `https://t.me/${reaction.from.username}`
+                : `tg://user?id=${reaction?.from?.id}`,
+            },
+          ],
         ],
       },
     }
