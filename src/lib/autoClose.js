@@ -78,7 +78,7 @@ function scheduleTimers(requestId, bot, reminderMs, autoCloseMs, isRepeat = fals
       if (request?.category && request?.channel_message_id) {
         await safeEditMessageText(
           bot,
-          `❌ Заявка закрыта\n\n${request?.text || ""}\n\n`,
+          `❌ Заявка автоматически закрыта\n\n${request?.text || ""}\n\n`,
           {
             chat_id: request.category,
             message_id: request.channel_message_id,
@@ -123,7 +123,7 @@ export async function handleAutoResponse(action, requestId, bot) {
     const { repeatReminderMs, autoCloseMs } = getConfig();
     await bot.sendMessage(
       request.telegram_id,
-      "Хорошо, напомню вам позже."
+      "Хорошо, свяжусь с вами позже."
     );
     scheduleTimers(requestId, bot, repeatReminderMs, autoCloseMs, true);
     return;
