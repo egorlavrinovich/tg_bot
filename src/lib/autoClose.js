@@ -1,4 +1,5 @@
 import { findRequestById, closeRequestById, completeRequestById } from "../models/Request.js";
+import { setUserState } from "../models/User.js";
 import { logWarn, logError } from "./logger.js";
 import { safeEditMessageText } from "../bot/bot.js";
 
@@ -80,6 +81,16 @@ export function scheduleAutoClose(requestId, bot) {
         request.telegram_id,
         "Заявка автоматически закрыта, так как вы не ответили."
       );
+      await setUserState(request.telegram_id, "ROLE_SELECT");
+      await bot.sendMessage(
+        request.telegram_id,
+        "Вы можете создать новую заявку.",
+        {
+          reply_markup: {
+            inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]],
+          },
+        }
+      );
     } catch (error) {
       logError("scheduleAutoClose autoClose error", error, { requestId });
     } finally {
@@ -141,6 +152,16 @@ export async function handleAutoResponse(action, requestId, bot) {
         closed.telegram_id,
         "Заявка закрыта. Если нужно — можете создать новую."
       );
+      await setUserState(closed.telegram_id, "ROLE_SELECT");
+      await bot.sendMessage(
+        closed.telegram_id,
+        "Вы можете создать новую заявку.",
+        {
+          reply_markup: {
+            inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]],
+          },
+        }
+      );
     }
     cancelAutoClose(requestId);
     return;
@@ -162,6 +183,16 @@ export async function handleAutoResponse(action, requestId, bot) {
       await bot.sendMessage(
         done.telegram_id,
         "Отлично! Отмечаю заявку как выполненную."
+      );
+      await setUserState(done.telegram_id, "ROLE_SELECT");
+      await bot.sendMessage(
+        done.telegram_id,
+        "Вы можете создать новую заявку.",
+        {
+          reply_markup: {
+            inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]],
+          },
+        }
       );
     }
     cancelAutoClose(requestId);
