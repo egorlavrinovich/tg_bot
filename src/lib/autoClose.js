@@ -107,7 +107,14 @@ export async function handleAutoResponse(action, requestId, bot) {
   if (!request || request.status !== "active") return;
 
   if (action === "no") {
-    const { repeatReminderMs } = getConfig();
+    const { repeatReminderMs, autoCloseMs } = getConfig();
+    // сбрасываем предыдущие таймеры и ставим новые
+    cancelAutoClose(requestId);
+
+    await bot.sendMessage(
+      request.telegram_id,
+      "Хорошо, напомню вам позже."
+    );
     const reminder = setTimeout(async () => {
       try {
         const latest = await findRequestById(requestId);
@@ -120,9 +127,11 @@ export async function handleAutoResponse(action, requestId, bot) {
               inline_keyboard: [
                 [
                   { text: "Нет", callback_data: `auto_no_${requestId}` },
-                  { text: "Закрыть заявку", callback_data: `auto_close_${requestId}` },
                   { text: "Да", callback_data: `auto_done_${requestId}` },
                 ],
+                [
+                  { text: "Закрыть заявку", callback_data: `auto_close_${requestId}` },
+                ]
               ],
             },
           }
@@ -132,6 +141,43 @@ export async function handleAutoResponse(action, requestId, bot) {
       }
     }, repeatReminderMs);
     setTimer(requestId, "reminder", reminder);
+
+    const autoClose = setTimeout(async () => {
+      try {
+        const request = await closeRequestById(requestId);
+        if (!request) return;
+        if (request?.category && request?.channel_message_id) {
+          await safeEditMessageText(
+            bot,
+            `❌ Заявка закрыта\n\n${request?.text || ""}\n\n`,
+            {
+              chat_id: request.category,
+              message_id: request.channel_message_id,
+            }
+          );
+        }
+        await bot.sendMessage(
+          request.telegram_id,
+          "Заявка автоматически закрыта, так как вы не ответили."
+        );
+        await setUserState(request.telegram_id, "ROLE_SELECT");
+        await bot.sendMessage(
+          request.telegram_id,
+          "Вы можете создать новую заявку.",
+          {
+            reply_markup: {
+              inline_keyboard: [[{ text: "🏠 Главное меню", callback_data: "menu" }]],
+            },
+          }
+        );
+      } catch (error) {
+        logError("handleAutoResponse autoClose error", error, { requestId });
+      } finally {
+        cancelAutoClose(requestId);
+      }
+    }, autoCloseMs);
+
+    setTimer(requestId, "autoClose", autoClose);
     return;
   }
 
