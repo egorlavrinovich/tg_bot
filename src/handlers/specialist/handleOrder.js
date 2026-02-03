@@ -45,7 +45,12 @@ export async function handleOrder(bot, reaction) {
     {
       reply_markup: {
         inline_keyboard: [
-          [{ text: "✅ Подтвердить выбор", callback_data: `perform_order` }],
+          [
+            {
+              text: "✅ Подтвердить выбор",
+              callback_data: `perform_order_${reaction?.from?.id}`,
+            },
+          ],
           [
             {
               text: "💬 Связаться",

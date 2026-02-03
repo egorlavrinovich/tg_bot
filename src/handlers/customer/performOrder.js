@@ -12,6 +12,9 @@ export async function performOrder(bot, query) {
   const telegramId = query.from.id;
   if (query?.message?.message_id) {
     try {
+      const specialistId = Number(
+        String(query.data || "").replace("perform_order_", "")
+      );
       const result = await completeActiveRequest(
         query.from.id,
         query.message.message_id
@@ -73,6 +76,26 @@ export async function performOrder(bot, query) {
         metricIncrement("request.complete_success");
         metricIncrement("request.complete");
         if (result?.id) cancelAutoClose(result.id);
+
+        if (Number.isFinite(specialistId)) {
+          const clientUsername = query?.from?.username;
+          const clientLink = clientUsername
+            ? `https://t.me/${clientUsername}`
+            : `tg://user?id=${telegramId}`;
+          await bot.sendMessage(
+            specialistId,
+            `Клиент подтвердил вашу заявку.\n\nКонтакты клиента:\n` +
+              (clientUsername ? `👤 @${clientUsername}\n` : "") +
+              `ID: ${telegramId}`,
+            {
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: "💬 Связаться", url: clientLink }],
+                ],
+              },
+            }
+          );
+        }
       }
     } catch (error) {
       await bot.sendMessage(telegramId, "Произошла ошибка", {
