@@ -17,6 +17,6 @@ export const CATEGORIES = [
   {
     key: "other",
     title: "Другие виды работ",
-    channelId: -1003828386806,
+    channelId: -1003515003965,
   },
 ];
