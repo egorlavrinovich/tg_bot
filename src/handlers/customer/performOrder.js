@@ -85,7 +85,7 @@ export async function performOrder(bot, query) {
           await bot.sendMessage(
             specialistId,
             `Клиент подтвердил вашу заявку.\n\nКонтакты клиента:\n` +
-              (clientUsername ? `👤 @${clientUsername}\n` : "") +
+              (clientUsername ? `👤 @${clientUsername}\n` : ""),
             {
               reply_markup: {
                 inline_keyboard: [
