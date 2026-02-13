@@ -1,7 +1,7 @@
 export const CATEGORIES = [
   {
     key: "worker",
-    title: "Муж на час",
+    title: "Разнорабочие",
     channelId: -1003515003965,
   },
   {
@@ -13,5 +13,10 @@ export const CATEGORIES = [
     key: "carriers",
     title: "Перевозчики",
     channelId: -1003437462575,
+  },
+  {
+    key: "other",
+    title: "Другие виды работ",
+    channelId: -1003828386806,
   },
 ];
